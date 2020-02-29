@@ -7,3 +7,5 @@ El admin puede crear un cuestionario de opciones y servicios a vender.
 Los vendedores utilizan el formato de ese cuestionario con cada posible ciente para intentar cerrar una venta.
 
 Tiene estatisticas por horas y dias de trabajo para cada vendedor y el ministrador puede ver las estatisticas de sus vendedores en general o filtrar las por cada vendedor
+
+El sitio se puede ver en vivo [my-crm-b6839](https://my-crm-b6839.firebaseapp.com)
