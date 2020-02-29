@@ -1,18 +1,46 @@
 {
   "indexes": [
     {
-      "collectionId": "uploads",
+      "collectionGroup": "fichajes",
+      "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "userId", "mode": "ASCENDING" },
-        { "fieldPath": "created", "mode": "DESCENDING" }
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "dia", "order": "ASCENDING" },
+        { "fieldPath": "userId", "order": "ASCENDING" }
       ]
     },
     {
-      "collectionId": "fichajes",
+      "collectionGroup": "fichajes",
+      "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "estado", "mode": "ASCENDING" },
-        { "fieldPath": "dia", "mode": "ASCENDING" },
-        { "fieldPath": "userId", "mode": "ASCENDING" }
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "dia", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "fichajes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "dia", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "visitas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userAdmin", "order": "ASCENDING" },
+        { "fieldPath": "diaVisita", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "visitas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userAdmin", "order": "ASCENDING" },
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "diaVisita", "order": "ASCENDING" }
       ]
     }
   ],
