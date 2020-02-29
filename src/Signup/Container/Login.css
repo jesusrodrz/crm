@@ -1,0 +1,7 @@
+.centrarLogin {
+    display: flex;
+    width: 100%;
+    height: -webkit-fill-available;
+    justify-content: center;
+    align-items: center;
+}

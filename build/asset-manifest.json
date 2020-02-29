@@ -1,0 +1,30 @@
+{
+  "files": {
+    "main.css": "/static/css/main.55cb938e.chunk.css",
+    "main.js": "/static/js/main.891e05a6.chunk.js",
+    "main.js.map": "/static/js/main.891e05a6.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.f3f2429b.js",
+    "runtime-main.js.map": "/static/js/runtime-main.f3f2429b.js.map",
+    "static/css/2.eae286e1.chunk.css": "/static/css/2.eae286e1.chunk.css",
+    "static/js/2.08fb6e96.chunk.js": "/static/js/2.08fb6e96.chunk.js",
+    "static/js/2.08fb6e96.chunk.js.map": "/static/js/2.08fb6e96.chunk.js.map",
+    "index.html": "/index.html",
+    "precache-manifest.3ab364d00f5f877f17a7ff54020c556b.js": "/precache-manifest.3ab364d00f5f877f17a7ff54020c556b.js",
+    "service-worker.js": "/service-worker.js",
+    "static/css/2.eae286e1.chunk.css.map": "/static/css/2.eae286e1.chunk.css.map",
+    "static/css/main.55cb938e.chunk.css.map": "/static/css/main.55cb938e.chunk.css.map",
+    "static/js/2.08fb6e96.chunk.js.LICENSE.txt": "/static/js/2.08fb6e96.chunk.js.LICENSE.txt",
+    "static/media/calculator.jpg": "/static/media/calculator.a08c3434.jpg",
+    "static/media/estadisticas.jpg": "/static/media/estadisticas.62170cb7.jpg",
+    "static/media/sell.jpg": "/static/media/sell.0367902a.jpg",
+    "static/media/tiempos.jpg": "/static/media/tiempos.abdb574c.jpg",
+    "static/media/trabajo.jpg": "/static/media/trabajo.75e6924d.jpg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.f3f2429b.js",
+    "static/css/2.eae286e1.chunk.css",
+    "static/js/2.08fb6e96.chunk.js",
+    "static/css/main.55cb938e.chunk.css",
+    "static/js/main.891e05a6.chunk.js"
+  ]
+}

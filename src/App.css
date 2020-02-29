@@ -1,0 +1,53 @@
+html,
+body,
+main,
+#root {
+  height: 100%;
+  width: 100%;
+  background-color: aliceblue;
+}
+
+.headerNav {
+  background-color: black;
+}
+
+.buttonBack {
+  margin-left: 10px;
+}
+
+.precios {
+  margin-top: 20px;
+}
+
+.visualizacion {
+  margin-top: 10px;
+}
+
+.totales {
+  text-align: center;
+}
+
+.navigation {
+  margin-top: 40px;
+}
+
+.enviarInfo {
+  margin-top: 20px;
+}
+
+.botonSuccess {
+  margin-top: 10px;
+}
+
+.user {
+  color: white;
+}
+
+.lateralBar {
+  background-color: currentColor;
+  min-height: calc(100vh - 47px);
+}
+
+.tableAcciones {
+  margin-top: 20px;
+}

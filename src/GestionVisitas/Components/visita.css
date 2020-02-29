@@ -1,0 +1,21 @@
+.card-visista {
+  position: relative;
+}
+.btn-back-visita {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  border: 1px solid red !important;
+  border: 1px solid rgba(0, 0, 0, 0.125) !important;
+}
+.card-visista ul {
+  margin: 0;
+  display: flex;
+  padding-left: 20px;
+}
+.card-visista ul li {
+  margin-right: 20px;
+}
+.card-visista .option {
+  margin: 0;
+}

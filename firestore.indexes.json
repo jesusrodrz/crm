@@ -1,0 +1,20 @@
+{
+  "indexes": [
+    {
+      "collectionId": "uploads",
+      "fields": [
+        { "fieldPath": "userId", "mode": "ASCENDING" },
+        { "fieldPath": "created", "mode": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionId": "fichajes",
+      "fields": [
+        { "fieldPath": "estado", "mode": "ASCENDING" },
+        { "fieldPath": "dia", "mode": "ASCENDING" },
+        { "fieldPath": "userId", "mode": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

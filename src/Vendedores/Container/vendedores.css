@@ -1,0 +1,13 @@
+.add-vendedor {
+  display: flex;
+  width: 60%;
+}
+.add-vendedor__input {
+  margin-right: 1rem;
+}
+.vendedores-cangardo {
+  display: flex;
+  flex-direction: column;
+  justify-self: flex-start;
+  align-items: center;
+}
