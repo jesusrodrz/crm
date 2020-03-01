@@ -13,9 +13,10 @@
     "react": "^16.7.0",
     "react-chartjs-2": "^2.7.6",
     "react-dom": "^16.7.0",
+    "react-icons": "^3.9.0",
     "react-images-upload": "^1.2.6",
     "react-modal": "^3.11.1",
-    "react-router-dom": "^5.0.0",
+    "react-router-dom": "^5.1.2",
     "react-scripts": "^3.4.0",
     "sweetalert": "^2.1.2",
     "uuid": "^7.0.0"

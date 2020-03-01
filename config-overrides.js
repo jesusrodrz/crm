@@ -15,7 +15,7 @@ module.exports = function override(config, env) {
     ...config.plugins,
     new WebpackBuildNotifierPlugin({
       title: 'React Build',
-      logo: path.resolve('public/favicon.ico')
+      logo: path.resolve('./public/react.png')
     })
   ];
 

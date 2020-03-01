@@ -27,6 +27,14 @@
       ]
     },
     {
+      "collectionGroup": "fichajes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userAdmin", "order": "ASCENDING" },
+        { "fieldPath": "dia", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "visitas",
       "queryScope": "COLLECTION",
       "fields": [
