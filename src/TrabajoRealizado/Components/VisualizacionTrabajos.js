@@ -39,6 +39,7 @@ export const VisualizacionTrabajos = ({
               <td />
               <td>{tiempoTotalDia}</td>
               <td />
+              <td />
             </tr>
           </tbody>
         </table>

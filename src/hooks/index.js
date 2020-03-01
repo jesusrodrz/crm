@@ -71,7 +71,6 @@ export const useCollection = (collection, query) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    console.log('run');
     if (!value) {
       return () => {};
     }
@@ -101,10 +100,13 @@ export const useCollectionByRef = (collection, query) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const queryString = JSON.stringify(query);
+  console.log('loading: ', loading);
   useEffect(() => {
     if (!queryString) {
       return () => {};
     }
+    setLoading(true);
+    let updateLoading = true;
     const parsedQuery = JSON.parse(queryString);
     const dbQuery = parsedQuery.where.reduce((newQuery, value) => {
       if (!value) {
@@ -115,13 +117,13 @@ export const useCollectionByRef = (collection, query) => {
       }
       return newQuery.where(...value);
     }, db.collection(collection));
-    // console.log(dbQuery);
     const snapshotData = dbQuery.onSnapshot(snapshot => {
       const snapshotDocsData = snapshot.docs.map(doc => ({
         ...doc.data(),
         id: doc.id
       }));
-      if (loading) {
+      if (updateLoading) {
+        updateLoading = false;
         setLoading(false);
       }
       setData(snapshotDocsData);
@@ -130,7 +132,7 @@ export const useCollectionByRef = (collection, query) => {
       // unsubcribe sanpshot listener
       snapshotData();
     };
-  }, [queryString, loading, collection]);
+  }, [queryString, collection]);
 
   return [data, loading];
 };

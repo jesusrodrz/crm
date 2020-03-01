@@ -10,6 +10,8 @@ import FieldInput from '../Components/FieldInput';
 class VisitasClass extends Component {
   constructor(props) {
     super(props);
+    this.mounted = true;
+
     const { auth } = this.props;
     this.state = {
       nombreGerente: '',
@@ -32,13 +34,14 @@ class VisitasClass extends Component {
     this.fetchFields();
   }
 
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
   handleChange = e => {
     const { target } = e;
     const { value } = target;
     const name = target.id;
-    if (target.type === 'date') {
-      console.log(value);
-    }
     this.setState({
       [name]: value
     });
@@ -71,7 +74,14 @@ class VisitasClass extends Component {
 
   fetchFields = async () => {
     const { auth } = this.state;
-    const id = auth?.user.data.userAdmin;
+    // console.log(auth);
+    const {
+      user: {
+        data: { type, userAdmin },
+        uid
+      }
+    } = auth;
+    const id = type === 'admin' ? uid : userAdmin;
     const dataSnapshot = await db
       .collection('dynamicFields')
       .where('userId', '==', id)
@@ -90,8 +100,9 @@ class VisitasClass extends Component {
 
       return 0;
     });
-    this.setState(state => ({ ...state, fields: orderedFields }));
-    console.log(orderedFields);
+    if (this.mounted) {
+      this.setState(state => ({ ...state, fields: orderedFields }));
+    }
   };
 
   submitInformation = e => {
@@ -110,7 +121,7 @@ class VisitasClass extends Component {
 
     const imagenes = listaImagenes.length > 0 ? listaImagenes : '';
 
-    const fechaProx = Number(moment(proxAccion).format('x'));
+    const fechaProx = moment(proxAccion).valueOf();
     const diaHoy = moment().valueOf();
 
     e.preventDefault();
@@ -140,6 +151,10 @@ class VisitasClass extends Component {
         },
         []
       );
+      const {
+        uid,
+        data: { type, userAdmin }
+      } = user;
       const visita = {
         diaVisita: diaHoy,
         fechaProx,
@@ -153,8 +168,8 @@ class VisitasClass extends Component {
         codigoPostal,
         emailEnviado: 'No',
         listaImagenesTarjeta: imagenes,
-        userId: user.uid,
-        userAdmin: user.data.userAdmin,
+        userId: uid,
+        userAdmin: type === 'admin' ? uid : userAdmin,
         fields: formatValues
       };
 
@@ -193,7 +208,6 @@ class VisitasClass extends Component {
 
   render() {
     const { fields } = this.state;
-    // this.validadeFields();
     return (
       <form>
         <div className="card precios">

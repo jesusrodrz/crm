@@ -33,7 +33,7 @@ const RutasApp = () => {
             exact
             path="/visitas"
             authenticated={authenticated}
-            routeType={['vendedor']}
+            routeType={['vendedor', 'admin']}
             userType={type}
           >
             <Layout>
@@ -55,7 +55,7 @@ const RutasApp = () => {
             exact
             path="/gestion"
             authenticated={authenticated}
-            routeType={['vendedor']}
+            routeType={['vendedor', 'admin']}
             userType={type}
           >
             <Layout>
@@ -66,7 +66,7 @@ const RutasApp = () => {
             exact
             path="/fichar"
             authenticated={authenticated}
-            routeType={['vendedor']}
+            routeType={['vendedor', 'admin']}
             userType={type}
           >
             <Layout>
@@ -77,7 +77,7 @@ const RutasApp = () => {
             exact
             path="/trabajorealizado"
             authenticated={authenticated}
-            routeType={['vendedor']}
+            routeType={['vendedor', 'admin']}
             userType={type}
           >
             <Layout>

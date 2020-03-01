@@ -7,6 +7,7 @@ import trabajo from '../../Images/trabajo.jpg';
 import tiempos from '../../Images/tiempos.jpg';
 import { HeaderNav } from '../../Header/Container/HeaderNav';
 import '../../App.css';
+import { useAuthValue } from '../../context/context';
 
 const CardsVendedor = () => (
   <>
@@ -82,23 +83,71 @@ const CardsAdmin = () => (
           direction="./vendedores"
         />
       </div>
+
       <div className="col-12 col-md-4">
         <Activity
-          image={estadisticas}
-          titleActivity="Estadísticas"
-          descriptionActivity="Analiza las visitas que estas realizando para analizar lo que consigues"
-          buttonActivity="Analizar"
-          direction="/estadisticas"
+          image={trabajo}
+          titleActivity="Fichar"
+          descriptionActivity="Ficha tu trabajo"
+          buttonActivity="Fichar"
+          direction="/fichar"
         />
       </div>
     </div>
+    <>
+      <div className="row">
+        <div className="col-12 col-md-4">
+          <Activity
+            image={ventas}
+            titleActivity="Haz Visita."
+            descriptionActivity="Aquí vas a apuntar de forma rápida las visitas que estas realizando"
+            buttonActivity="Visita"
+            direction="./Visitas"
+          />
+        </div>
+        <div className="col-12 col-md-4">
+          <Activity
+            image={presupuestos}
+            titleActivity="Gestion de Visitas"
+            descriptionActivity="Recuerda todo el trabajo realizado y además haz un buen seguimiento"
+            buttonActivity="Gestiona"
+            direction="./gestion"
+          />
+        </div>
+
+        <div className="col-12 col-md-4">
+          <Activity
+            image={estadisticas}
+            titleActivity="Estadísticas"
+            descriptionActivity="Analiza las visitas que estas realizando para analizar lo que consigues"
+            buttonActivity="Analizar"
+            direction="/estadisticas"
+          />
+        </div>
+        <div className="col-12 col-md-4">
+          <Activity
+            image={tiempos}
+            titleActivity="Ver Trabajo"
+            descriptionActivity="Visualiza el trabajo realizado"
+            buttonActivity="Ver"
+            direction="/trabajorealizado"
+          />
+        </div>
+      </div>
+    </>
   </>
 );
 export function Dashboard({ userType }) {
+  const {
+    user: {
+      data: { name }
+    }
+  } = useAuthValue();
+  console.log(name);
   return (
     <div>
-      <HeaderNav userName="Carlos Raez" />
-      <div className="container">
+      <HeaderNav userName={name} noMenu />
+      <div className="container pb-5">
         {userType === 'vendedor' && <CardsVendedor />}
         {userType === 'admin' && <CardsAdmin />}
       </div>

@@ -70,7 +70,10 @@ class FicharClass extends Component {
       return;
     }
     const {
-      user: { uid }
+      user: {
+        uid,
+        data: { type, userAdmin }
+      }
     } = auth;
     const comienzo = Number(moment().format('x'));
     const dia = moment(moment().format('YYYY/MM/DD')).valueOf();
@@ -79,6 +82,7 @@ class FicharClass extends Component {
       const { actividad } = this.state;
       const trabajo = {
         userId: uid,
+        userAdmin: type === 'admin' ? uid : userAdmin,
         dia,
         actividad,
         comienzo,
@@ -232,26 +236,30 @@ class FicharClass extends Component {
     const tiempoProgramacionEstadistica = tiempoTotalesMinutos.Programar;
     return (
       <>
-        <div className="form-group">
-          <label>Actividad</label>
-          <select
-            onChange={this.handleChange}
-            className="form-control"
-            id="actividad"
-          >
-            <option>Oficina</option>
-            <option>Venta</option>
-            <option>Formacion</option>
-            <option>Programar</option>
-          </select>
+        <div className="card precios">
+          <div className="card-body">
+            <div className="form-group">
+              <label>Actividad</label>
+              <select
+                onChange={this.handleChange}
+                className="form-control"
+                id="actividad"
+              >
+                <option>Oficina</option>
+                <option>Venta</option>
+                <option>Formacion</option>
+                <option>Programar</option>
+              </select>
+            </div>
+            <button
+              type="submit"
+              onClick={this.submitInformation}
+              className="btn btn-success"
+            >
+              Fichar
+            </button>
+          </div>
         </div>
-        <button
-          type="submit"
-          onClick={this.submitInformation}
-          className="btn btn-success"
-        >
-          Fichar
-        </button>
         {loading ? (
           <Spinner />
         ) : (

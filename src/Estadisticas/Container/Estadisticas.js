@@ -9,6 +9,7 @@ const today = moment().valueOf();
 export function Estadisticas() {
   const { user } = useAuthValue();
   const userType = user?.data?.type;
+  const { email: emailUser, uid } = user;
   const userAmindId = userType === 'admin' ? user.uid : user?.data?.userAdmin;
   const [{ minDate, maxDate, userFilter }, setFilterState] = useState({
     minDate: '',
@@ -21,7 +22,10 @@ export function Estadisticas() {
     userType === 'admin' && userAmindId
     // si el usuario no es admin retorna undefined y useColledtion no buscara los usuarios
   ]);
-
+  const usersNew = [
+    { name: 'tu usuario', email: emailUser, id: uid },
+    ...users
+  ];
   const handleFilterChange = useCallback(({ target }) => {
     const { value, name, type } = target;
     const formatedValue =
@@ -120,7 +124,7 @@ export function Estadisticas() {
                           onChange={handleFilterChange}
                         >
                           <option value="false">Todos los usuarios</option>
-                          {users.map(({ name, id, email }) => (
+                          {usersNew.map(({ name, id, email }) => (
                             <option key={id} value={id}>
                               {name} - {email}
                             </option>
@@ -131,60 +135,64 @@ export function Estadisticas() {
                   </div>
                 )}
               </div>
+              <div className="row">{loading && <Spinner />}</div>
             </div>
           </div>
         </div>
       </div>
       <div className="row">
-        {loading && <Spinner />}
-        {datosVisitas.length > 0 ? (
-          datosVisitas.map(dato => {
-            const { id, title, options } = dato;
-            const labels = [];
-            const dataCount = [];
-            options.forEach(({ name, count }) => {
-              labels.push(name);
-              dataCount.push(count);
-            });
-            const count = options.reduce((current, item) => {
-              return current + item.count;
-            }, 0);
-            const chartData = {
-              labels,
-              datasets: [
-                {
-                  data: dataCount,
-                  backgroundColor: [
-                    '#F0EDED',
-                    '#36A2EB',
-                    '#FFCE56',
-                    '#605C5A',
-                    '#EB0F13'
-                  ],
-                  hoverBackgroundColor: [
-                    '#DFC5C5',
-                    '#36A2EB',
-                    '#FFCE56',
-                    '#4B0607'
-                  ]
-                }
-              ]
-            };
-            return (
-              <div className="col-12 col-md-6" key={id}>
-                <Analisis
-                  tituloEstadistica={`Total de ${title}`}
-                  dataEstadisitacaVisitas={chartData}
-                  totales={`Total: ${count}`}
-                />
+        {datosVisitas.length > 0
+          ? datosVisitas.map(dato => {
+              const { id, title, options } = dato;
+              const labels = [];
+              const dataCount = [];
+              options.forEach(({ name, count }) => {
+                labels.push(name);
+                dataCount.push(count);
+              });
+              const count = options.reduce((current, item) => {
+                return current + item.count;
+              }, 0);
+              const chartData = {
+                labels,
+                datasets: [
+                  {
+                    data: dataCount,
+                    backgroundColor: [
+                      '#F0EDED',
+                      '#36A2EB',
+                      '#FFCE56',
+                      '#605C5A',
+                      '#EB0F13'
+                    ],
+                    hoverBackgroundColor: [
+                      '#DFC5C5',
+                      '#36A2EB',
+                      '#FFCE56',
+                      '#4B0607'
+                    ]
+                  }
+                ]
+              };
+              return (
+                <div className="col-12 col-md-6" key={id}>
+                  <Analisis
+                    tituloEstadistica={`Total de ${title}`}
+                    dataEstadisitacaVisitas={chartData}
+                    totales={`Total: ${count}`}
+                  />
+                </div>
+              );
+            })
+          : !loading && (
+              <div className="col-12">
+                <div className="card precios">
+                  <div className="card-body">
+                    <h5 className="card-title">No hay visitas que mostrar</h5>
+                  </div>
+                </div>
               </div>
-            );
-          })
-        ) : (
-          <div>
-            <p>No hay visitas que mostrar</p>
-          </div>
-        )}
+            )}
       </div>
     </>
   );

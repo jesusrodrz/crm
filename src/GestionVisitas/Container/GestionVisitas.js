@@ -28,6 +28,7 @@ class GestionVisitasClass extends Component {
       probVenta: '',
       poblacion: '',
       codigoPostal: '',
+      userFilter: 'false',
       verVisitaCompleta: false,
       cargando: true,
       search: [],
@@ -39,6 +40,7 @@ class GestionVisitasClass extends Component {
       listaImagenes: [],
       visitaFields: [],
       dynamicFields: [],
+      users: [],
       guardandoVisita: false,
       borrandoVisita: false
     };
@@ -189,42 +191,53 @@ class GestionVisitasClass extends Component {
   };
 
   subscribeVisitas = async () => {
+    if (this.unsubscribeVisitas) this.unsubscribeVisitas();
     try {
-      const { auth } = this.state;
+      const { auth, userFilter } = this.state;
       const {
         user: {
           uid,
-          data: { userAdmin }
+          data: { userAdmin, type }
         }
       } = auth;
-      const subscribeVisitas = db
-        .collection('visitas')
-        .where('userAdmin', '==', userAdmin)
-        .where('userId', '==', uid)
-        .onSnapshot(snapshot => {
-          const visitas = snapshot.docs.map((item, i) => {
-            const data = { ...item.data(), id: item.id };
-            const formatedProxAccion = isNaN(data.fechaProx)
-              ? 'No tiene'
-              : moment(data.fechaProx).format('DD/MM/YYYY');
-            return {
-              ...data,
-              fechaProx: formatedProxAccion
-            };
-          });
-
-          const accionesDia = visitas.filter((item, i) => {
-            const hoy = moment().format('DD/MM/YYYY');
-            const visitaProx = item.fechaProx;
-            return visitaProx === hoy;
-          });
-          this.setState({
-            data: visitas,
-            cargando: false,
-            tareas: accionesDia
-          });
+      let query;
+      if (type === 'vendedor') {
+        query = db
+          .collection('visitas')
+          .where('userAdmin', '==', userAdmin)
+          .where('userId', '==', uid);
+      } else if (userFilter === 'false') {
+        query = db.collection('visitas').where('userAdmin', '==', uid);
+      } else {
+        query = db
+          .collection('visitas')
+          .where('userAdmin', '==', uid)
+          .where('userId', '==', userFilter);
+      }
+      const subscribeVisitas = query.onSnapshot(snapshot => {
+        const visitas = snapshot.docs.map((item, i) => {
+          const data = { ...item.data(), id: item.id };
+          const formatedProxAccion = isNaN(data.fechaProx)
+            ? 'No tiene'
+            : moment(data.fechaProx).format('DD/MM/YYYY');
+          return {
+            ...data,
+            fechaProx: formatedProxAccion
+          };
         });
-      this.unsubscribes.push(subscribeVisitas);
+
+        const accionesDia = visitas.filter((item, i) => {
+          const hoy = moment().format('DD/MM/YYYY');
+          const visitaProx = item.fechaProx;
+          return visitaProx === hoy;
+        });
+        this.setState({
+          data: visitas,
+          cargando: false,
+          tareas: accionesDia
+        });
+      });
+      this.unsubscribeVisitas = subscribeVisitas;
     } catch (error) {
       this.showError(error);
     }
@@ -235,12 +248,13 @@ class GestionVisitasClass extends Component {
       const { auth } = this.state;
       const {
         user: {
-          data: { userAdmin }
+          uid,
+          data: { userAdmin, type }
         }
       } = auth;
       const fieldsSnapshot = await db
         .collection('dynamicFields')
-        .where('userId', '==', userAdmin)
+        .where('userId', '==', type === 'admin' ? uid : userAdmin)
         .get();
       const fields = fieldsSnapshot.docs.map(item => ({
         ...item.data(),
@@ -252,14 +266,57 @@ class GestionVisitasClass extends Component {
     }
   };
 
+  fetchUsers = async () => {
+    const { auth } = this.state;
+    const {
+      user: { email, uid }
+    } = auth;
+    const usersSnapshot = await db
+      .collection('usersData')
+      .where('userAdmin', '==', uid)
+      .get();
+    const users = usersSnapshot.docs.map(user => ({
+      ...user.data(),
+      id: user.id
+    }));
+    this.setState({
+      users: [{ name: 'Tu usuario', email, id: uid }, ...users]
+    });
+  };
+
   showError = e => {
     swal('Error', `Erro: ${e}`, 'error');
   };
 
+  filterHandler = ({ target }) => {
+    const { value } = target;
+    this.setState({ userFilter: value });
+  };
+
   componentDidMount = () => {
+    const { auth } = this.state;
+    const {
+      user: {
+        data: { type }
+      }
+    } = auth;
     this.subscribeVisitas();
     this.getDynamicFields();
+    if (type === 'admin') {
+      this.fetchUsers();
+    }
   };
+
+  componentDidUpdate(props, prevState) {
+    // console.log(prevState);
+    // console.log(prevState, o);
+    const { userFilter } = this.state;
+    const { userFilter: prevUserFilter } = prevState;
+    // console.log(prevUserFilter, userFilter);
+    if (prevUserFilter !== userFilter) {
+      this.subscribeVisitas();
+    }
+  }
 
   componentWillUnmount = () => {
     // console.log('unmount');
@@ -290,17 +347,19 @@ class GestionVisitasClass extends Component {
       visitaFields,
       dynamicFields,
       guardandoVisita,
+      userFilter,
       borrandoVisita,
-      auth
+      auth,
+      users
     } = this.state;
     const {
       user: {
-        data: { userAdmin }
+        data: { userAdmin, type }
       }
     } = auth;
     const lista = busqueda ? search : data;
     return (
-      <div className="col-12 col-md-11">
+      <div className="col-12 col-md-12">
         <div className="row">
           <div className="col-12 col-md-9">
             {verVisitaCompleta ? (
@@ -330,13 +389,43 @@ class GestionVisitasClass extends Component {
               />
             ) : (
               <div>
-                <input
-                  type="text"
-                  onChange={this.handleSearch}
-                  className="form-control precios"
-                  id="search"
-                  placeholder="Buscar..."
-                />
+                {type === 'admin' ? (
+                  <div className="row precios mb-3">
+                    <div className="col-12 col-md-6">
+                      <input
+                        type="text"
+                        onChange={this.handleSearch}
+                        className="form-control"
+                        id="search"
+                        placeholder="Buscar..."
+                      />
+                    </div>
+                    <div className="col-12 col-md-6">
+                      <select
+                        className="custom-select"
+                        name="userFilter"
+                        onChange={this.filterHandler}
+                        value={userFilter}
+                      >
+                        <option value="false">Todos los usuarios</option>
+                        {users.map(({ name, id, email }) => (
+                          <option key={id} value={id}>
+                            {name} - {email}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                ) : (
+                  <input
+                    type="text"
+                    onChange={this.handleSearch}
+                    className="form-control precios"
+                    id="search"
+                    placeholder="Buscar..."
+                  />
+                )}
+
                 {cargando ? (
                   <Spinner />
                 ) : (
