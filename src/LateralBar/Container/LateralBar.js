@@ -55,6 +55,27 @@ export function LateralBar() {
                 Vendedores
               </Link>
             </li>
+
+            <li className="nav-item">
+              <Link to="./visitas" className="btn btn-link">
+                Visitas
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/gestion" className="btn btn-link">
+                Gestionar Visitas
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/fichar" className="btn btn-link">
+                Fichar
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/trabajorealizado" className="btn btn-link">
+                Trabajo Realizado
+              </Link>
+            </li>
             <li className="nav-item">
               <Link to="/estadisticas" className="btn btn-link">
                 Estadísticas

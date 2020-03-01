@@ -1,8 +1,10 @@
 import React from 'react';
-import { firebaseApp } from '../../firebase/firebase';
 import swal from 'sweetalert';
+import { TiThMenu } from 'react-icons/ti';
+import { IoMdClose } from 'react-icons/io';
+import { firebaseApp } from '../../firebase/firebase';
 
-export function HeaderNav({ userName }) {
+export function HeaderNav({ userName, togleMenu, show, noMenu }) {
   const handleClickCloseSesion = e => {
     firebaseApp
       .auth()
@@ -22,11 +24,20 @@ export function HeaderNav({ userName }) {
       <span className="user">{userName}</span>
       <button
         onClick={handleClickCloseSesion}
-        className="btn btn-sm btn-outline-danger"
+        className="btn btn-sm btn-light btn-header-bar"
         type="button"
       >
         Cerrar Sesion
       </button>
+      {noMenu || (
+        <button
+          onClick={togleMenu}
+          className="btn btn-sm btn-light d-md-none btn-hearder-menu"
+          type="button"
+        >
+          {show ? <IoMdClose /> : <TiThMenu />}
+        </button>
+      )}
     </nav>
   );
 }

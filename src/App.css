@@ -46,8 +46,62 @@ main,
 .lateralBar {
   background-color: currentColor;
   min-height: calc(100vh - 47px);
+  transition: all ease-in 0.3s;
+  padding: 0 !important;
+}
+.lateralBar .nav {
+  width: 100%;
 }
 
 .tableAcciones {
   margin-top: 20px;
+}
+.lateralBarWrapper {
+  position: relative;
+}
+@media (max-width: 767px) {
+  .headerNav {
+    justify-content: flex-end !important;
+  }
+  .lateralBarWrapper .lateralBar {
+    position: fixed;
+    z-index: 100;
+    left: 100%;
+    transform: translateX(0);
+  }
+  .lateralBarWrapper .lateralBar.active {
+    transform: translateX(-100%);
+  }
+  .btn-header-bar {
+    margin-left: auto;
+  }
+  .btn-hearder-menu {
+    margin-left: 1rem;
+  }
+  .nav-item .btn-link {
+    text-align: center;
+  }
+  /* .lateralBar {
+    display: none;
+  } */
+}
+.table th,
+.table td {
+  white-space: nowrap;
+}
+.card-body {
+  overflow-x: auto;
+}
+.nav-item .btn-link {
+  display: block;
+  color: white;
+  text-align: left;
+}
+.nav-item .btn-link:hover {
+  color: white;
+  background-color: rgba(0, 0, 0, 0.25);
+}
+.navbar.navbar-collapse {
+  padding: 1rem 0;
+  margin: 0;
 }
