@@ -4,6 +4,8 @@ import presupuestos from '../../Images/calculator.jpg';
 import ventas from '../../Images/sell.jpg';
 import estadisticas from '../../Images/estadisticas.jpg';
 import trabajo from '../../Images/trabajo.jpg';
+import configuracion from '../../Images/configuracion.jpg';
+import vendedores from '../../Images/vendedores.png';
 import tiempos from '../../Images/tiempos.jpg';
 import { HeaderNav } from '../../Header/Container/HeaderNav';
 import '../../App.css';
@@ -67,7 +69,7 @@ const CardsAdmin = () => (
     <div className="row">
       <div className="col-12 col-md-4">
         <Activity
-          image={ventas}
+          image={configuracion}
           titleActivity="Configuración"
           descriptionActivity="Configuraciones Generales"
           buttonActivity="Configuración"
@@ -76,7 +78,7 @@ const CardsAdmin = () => (
       </div>
       <div className="col-12 col-md-4">
         <Activity
-          image={presupuestos}
+          image={vendedores}
           titleActivity="Administrar Vendedores"
           descriptionActivity="Agrega, modficia o eliminia vendedores."
           buttonActivity="Vendedores"
@@ -143,7 +145,6 @@ export function Dashboard({ userType }) {
       data: { name }
     }
   } = useAuthValue();
-  console.log(name);
   return (
     <div>
       <HeaderNav userName={name} noMenu />
