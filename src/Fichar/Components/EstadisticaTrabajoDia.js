@@ -5,13 +5,9 @@ export class EstadisticaTrabajoDia extends Component {
   constructor(props) {
     super(props);
     const minutos = this.props.tiempoTotalesMinutos;
-    // console.log(minutos);
     const labels = Object.keys(minutos);
     const dataset = labels.map(key => minutos[key]);
-    console.log(labels, dataset);
     this.state = {
-      data: [],
-      tiempoTotalDia: this.props.tiempoTotalDia,
       totalesFormated: this.props.tiempoTotalesFormated,
       dataEstadisitacaVisitas: {
         labels: [...labels],
@@ -27,11 +23,7 @@ export class EstadisticaTrabajoDia extends Component {
   }
 
   render() {
-    const {
-      dataEstadisitacaVisitas,
-      tiempoTotalDia,
-      totalesFormated
-    } = this.state;
+    const { dataEstadisitacaVisitas, totalesFormated } = this.state;
     return (
       <div className="card activity">
         <div className="card-body">
