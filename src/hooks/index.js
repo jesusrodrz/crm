@@ -94,7 +94,7 @@ export const useCollection = (collection, query) => {
     };
   }, [key, operator, value, collection, loading]);
 
-  return [data, loading];
+  return [data, loading, setData];
 };
 export const useCollectionByRef = (collection, query) => {
   const [data, setData] = useState([]);

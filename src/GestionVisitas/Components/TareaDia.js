@@ -11,11 +11,12 @@ export function TareaDia({ tareas, handleActuarDia }) {
         <ul>
           {tareas.map((tarea, i) => {
             return (
-              <li key={i} id={i}>
+              <li key={i}>
                 <button
                   className="btn btn-link"
-                  onClick={handleActuarDia}
                   type="button"
+                  id={i}
+                  onClick={handleActuarDia}
                 >
                   {tarea.nombreNegocio}
                 </button>

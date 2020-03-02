@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 export const VisualizacionTrabajos = ({
   listaTrabajoSeleccionado,
-  tiempoTotalDia
+  tiempoTotalDia,
+  open
 }) => {
+  const openModal = useCallback(() => {
+    open(true);
+  }, [open]);
   return (
     <div className="card visualizacion">
       <div className="card-body">
@@ -28,7 +32,13 @@ export const VisualizacionTrabajos = ({
                   <td>{fichaje.duracion}</td>
                   <td>{fichaje.parado}</td>
                   <td>
-                    <button className="btn btn-primary btn-sm">Mapa</button>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      type="button"
+                      onClick={openModal}
+                    >
+                      Mapa
+                    </button>
                   </td>
                 </tr>
               );

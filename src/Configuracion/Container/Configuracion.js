@@ -5,6 +5,7 @@ import DynamicField from '../Components/DynamicField';
 import { useAuth, useCollection } from '../../hooks';
 import { Spinner } from '../../Spinner/Container/Spinner';
 import DynamicFieldList from '../Components/DynamicFieldList';
+import FichajesTypesList from '../Components/FichajesTypesList';
 
 export default function Configuracion() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -15,6 +16,11 @@ export default function Configuracion() {
     '==',
     user.uid
   ]);
+  const [
+    fichajeTypes,
+    loadingFichajeTypes,
+    setFichajesTypes
+  ] = useCollection('fichajeTypes', ['userId', '==', user.uid]);
   const editField = useCallback(
     id => {
       const current = fields.find(item => item.id === id);
@@ -33,7 +39,7 @@ export default function Configuracion() {
         <div className="col-12">
           <div className="card precios">
             <div className="card-body">
-              <h2>Configura las visitas</h2>
+              <h3>Configura las visitas</h3>
               <table className="table">
                 <thead className="thead-dark">
                   <tr>
@@ -65,6 +71,41 @@ export default function Configuracion() {
               >
                 Agregar campo
               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-12">
+          <div className="card precios">
+            <div className="card-body">
+              <h3>Configura los tipos de fichaje</h3>
+              <table className="table">
+                <thead className="thead-dark">
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {!loadingFichajeTypes ? (
+                    <FichajesTypesList
+                      data={fichajeTypes}
+                      setFichajes={setFichajesTypes}
+                    />
+                  ) : (
+                    <tr>
+                      <td colSpan="4">
+                        <div className="vendedores-cangardo">
+                          Cargando...
+                          <Spinner />
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

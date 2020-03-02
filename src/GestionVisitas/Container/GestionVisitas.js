@@ -84,6 +84,10 @@ class GestionVisitasClass extends Component {
     const { data, busqueda, search } = this.state;
     const visita = busqueda ? search[i] : data[i];
 
+    this.setVista(visita);
+  };
+
+  setVista = visita => {
     this.setState({
       visitaId: visita.id,
       nombreNegocio: visita.nombreNegocio,
@@ -110,23 +114,8 @@ class GestionVisitasClass extends Component {
     const i = event.target.id;
     const { tareas } = this.state;
     const visita = tareas[i];
-
-    this.setState({
-      nombreNegocio: visita.nombreNegocio,
-      productoSolicitado: visita.productoSolicitado,
-      nombreGerente: visita.nombreGerente,
-      comentarios: visita.comentarios,
-      proxAccion: visita.fechaProx,
-      poblacion: visita.poblacion,
-      codigoPostal: visita.codigoPostal,
-      telefonoGerente: visita.telefonoGerente,
-      emailGerente: visita.emailGerente,
-      emailEnviado: visita.emailEnviado,
-      tienenWeb: visita.tienenWeb,
-      probVenta: visita.probVenta,
-      tieneInteres: visita.tieneInteres,
-      verVisitaCompleta: true
-    });
+    console.log(tareas, event.target, visita);
+    this.setVista(visita);
   };
 
   handleModificar = event => {
@@ -361,6 +350,9 @@ class GestionVisitasClass extends Component {
     return (
       <div className="col-12 col-md-12">
         <div className="row">
+          <div className="col-12 col-md-3 order-md-12">
+            <TareaDia tareas={tareas} handleActuarDia={this.handleActuarDia} />
+          </div>
           <div className="col-12 col-md-9">
             {verVisitaCompleta ? (
               <Visita
@@ -471,9 +463,6 @@ class GestionVisitasClass extends Component {
                 )}
               </div>
             )}
-          </div>
-          <div className="col-12 col-md-3">
-            <TareaDia tareas={tareas} handleActuarDia={this.handleActuarDia} />
           </div>
         </div>
       </div>

@@ -35,7 +35,7 @@ export const Visita = props => {
     });
     return { ...item, options: newOpctions };
   });
-  console.log(fieldToShow);
+  // console.log(fieldToShow);
   return (
     <div className="card activity card-visista">
       <div className="row">

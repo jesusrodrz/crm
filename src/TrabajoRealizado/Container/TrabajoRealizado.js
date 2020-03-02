@@ -1,10 +1,12 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import moment from 'moment';
 import swal from 'sweetalert';
+import Modal from 'react-modal';
 import { db } from '../../firebase/firebase';
 import { VisualizacionTrabajos } from '../Components/VisualizacionTrabajos';
 import { useAuthValue } from '../../context/context';
 import { Spinner } from '../../Spinner/Container/Spinner';
+import ButtonClose from '../../Configuracion/Components/ButtonClose';
 
 const today = () => moment(moment().format('YYYY-MM-DD')).valueOf();
 const ducationFormat = duration => {
@@ -22,6 +24,7 @@ export function TrabajoRealizado() {
   const [listaTrabajoSeleccionado, setListaTrabajoSeleccionado] = useState([]);
   const [loading, setloading] = useState(false);
   const [userFilter, setUserFilter] = useState('false');
+  const [modalOpen, setModalOpen] = useState(false);
   const [users, setUsers] = useState([]);
   // const
   const [{ fechaFin, fechaInicio }, setFilter] = useState({
@@ -120,6 +123,10 @@ export function TrabajoRealizado() {
   const tiempoTotalDia = ducationFormat(totalTiempo);
   return (
     <>
+      <Modal isOpen={modalOpen} appElement={document.getElementById('root')}>
+        <ButtonClose onClick={() => setModalOpen(!modalOpen)} />
+        <div id="map" className="map" />
+      </Modal>
       <div className="card visualizacion">
         <div className="card-body">
           <h5 className="card-title">Escoje un rango de fechas</h5>
@@ -179,6 +186,7 @@ export function TrabajoRealizado() {
         <VisualizacionTrabajos
           listaTrabajoSeleccionado={listaTrabajoSeleccionado}
           tiempoTotalDia={tiempoTotalDia}
+          open={setModalOpen}
         />
       )}
     </>

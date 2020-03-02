@@ -12,22 +12,28 @@ class FicharClass extends Component {
   constructor(props) {
     super(props);
     this.subscriptions = [];
+    this.mounted = false;
     this.state = {
       auth: this.props.auth,
-      actividad: 'Oficina',
+      actividad: '',
       cargandoTrabajos: false,
       cargandoTerminados: false,
       listaTrabajo: [],
+      fichajesTypes: [],
       listaTerminado: []
     };
   }
 
   componentDidMount = () => {
+    this.mounted = true;
     this.subscribeTrabajos();
     this.subscribeTrabajosTerminados();
+    this.fetchFichajesTypes();
+    // this.updateDurationTrabajos();
   };
 
   componentWillUnmount() {
+    this.mounted = false;
     this.subscriptions.forEach(subs => {
       subs();
     });
@@ -38,11 +44,16 @@ class FicharClass extends Component {
     const { listaTrabajo } = this.state;
     const currentTrabajo = listaTrabajo.find(item => item.id === e);
 
-    const terminado = Number(moment().format('x'));
+    const terminado = moment().valueOf();
+    const terminadoString = moment(terminado).format('YYYY/MM/DD HH:mm');
     const duracion = terminado - currentTrabajo.comienzo;
+    const time = moment.duration(duracion);
+    const duracionString = `h: ${time.hours()}, m: ${time.minutes()}, s: ${time.seconds()}`;
     window.navigator.geolocation.getCurrentPosition(success => {
       const trabajo = {
         parado: terminado,
+        terminadoString,
+        duracionString,
         duracion,
         estado: 'Terminado',
         lugarTerminado: {
@@ -65,7 +76,7 @@ class FicharClass extends Component {
   submitInformation = e => {
     e.preventDefault();
     const { listaTrabajo, auth } = this.state;
-    if (listaTrabajo.length !== 0) {
+    if (listaTrabajo.length > 0) {
       swal('Ya tienes un trabajo en marcha, primero finaliza tu trabajo');
       return;
     }
@@ -75,8 +86,10 @@ class FicharClass extends Component {
         data: { type, userAdmin }
       }
     } = auth;
-    const comienzo = Number(moment().format('x'));
+    const comienzo = moment().valueOf();
     const dia = moment(moment().format('YYYY/MM/DD')).valueOf();
+    const diaString = moment(dia).format('YYYY/MM/DD HH:mm');
+    const comienzoString = moment().format('YYYY/MM/DD HH:mm');
     // const sam = moment(1582933115163).format('HH:mm');
     window.navigator.geolocation.getCurrentPosition(success => {
       const { actividad } = this.state;
@@ -84,7 +97,9 @@ class FicharClass extends Component {
         userId: uid,
         userAdmin: type === 'admin' ? uid : userAdmin,
         dia,
+        diaString,
         actividad,
+        comienzoString,
         comienzo,
         parado: 0,
         duracion: 0,
@@ -124,6 +139,7 @@ class FicharClass extends Component {
       user: { uid }
     } = auth;
     this.setState({ cargandoTrabajos: true });
+    let subscribeUpdate = true;
     const dia = moment(moment().format('YYYY/MM/DD')).valueOf();
     const subscribe = db
       .collection('fichajes')
@@ -138,13 +154,60 @@ class FicharClass extends Component {
           };
           const comienzoFormated = moment(data.comienzo).format('HH:mm');
           const timeDiference = moment().valueOf() - data.comienzo; // hora actual menos hora de comienzo
-          const timeObject = moment.duration(timeDiference);
-          const duracionFormated = `${timeObject.hours()} horas y ${timeObject.minutes()} minutos.`;
+
+          const duracionFormated = this.getDutationFormated(timeDiference);
           return { ...data, id: doc.id, comienzoFormated, duracionFormated };
         });
+        if (subscribeUpdate) {
+          subscribeUpdate = false;
+          this.updateDurationTrabajos();
+        }
         this.setState({ listaTrabajo: trabajos, cargandoTrabajos: false });
       });
     this.subscriptions.push(subscribe);
+  };
+
+  fetchFichajesTypes = () => {
+    const { auth } = this.state;
+    const {
+      user: {
+        uid,
+        data: { type, userAdmin }
+      }
+    } = auth;
+    const id = type === 'admin' ? uid : userAdmin;
+    db.collection('fichajeTypes')
+      .where('userId', '==', id)
+      .get()
+      .then(snapshot => {
+        if (!this.mounted) {
+          return;
+        }
+        const data = snapshot.docs.map(item => {
+          return { ...item.data(), id: item.id };
+        });
+        this.setState({ fichajesTypes: data, actividad: data[0].name });
+      });
+  };
+
+  getDutationFormated = duration => {
+    const timeObject = moment.duration(duration);
+    return `${timeObject.hours()} horas, ${timeObject.minutes()} minutos y ${timeObject.seconds()} segundos.`;
+  };
+
+  updateDurationTrabajos = () => {
+    const intervalID = setInterval(() => {
+      const { listaTrabajo } = this.state;
+      const trabajos = listaTrabajo.map(item => {
+        const timeDiference = moment().valueOf() - item.comienzo;
+        const duracionFormated = this.getDutationFormated(timeDiference);
+        return { ...item, duracionFormated };
+      });
+      this.setState({ listaTrabajo: trabajos });
+    }, 50000);
+    this.subscriptions.push(() => {
+      clearInterval(intervalID);
+    });
   };
 
   subscribeTrabajosTerminados = () => {
@@ -164,11 +227,10 @@ class FicharClass extends Component {
           const data = {
             ...doc.data()
           };
-          const comienzoFormated = moment(data.comienzo).format('HH:mm');
-          const paradoFormated = moment(data.parado).format('HH:mm');
-          const timeDiference = moment().valueOf() - data.comienzo; // hora actual menos hora de comienzo
-          const timeObject = moment.duration(timeDiference);
-          const duracionFormated = `${timeObject.hours()} horas y ${timeObject.minutes()} minutos.`;
+          const comienzoFormated = moment(data.comienzo).format('HH:mm:ss');
+          const paradoFormated = moment(data.parado).format('HH:mm:ss');
+          const timeDiference = data.parado - data.comienzo; // hora actual menos hora de comienzo
+          const duracionFormated = this.getDutationFormated(timeDiference);
           return {
             ...data,
             id: doc.id,
@@ -187,25 +249,24 @@ class FicharClass extends Component {
       listaTrabajo,
       cargandoTerminados,
       cargandoTrabajos,
-      listaTerminado
+      listaTerminado,
+      actividad,
+      fichajesTypes
     } = this.state;
     const loading = cargandoTrabajos || cargandoTerminados;
-    const tiempoTotales = listaTerminado.reduce(
-      (time, item) => {
-        const { duracion } = item;
-        const key = item.actividad;
-        const total = time.total + duracion;
-        const actividad = time[key] + duracion;
-        return { ...time, total, [key]: actividad };
+    const typesNames = fichajesTypes.reduce(
+      (obj, item) => {
+        return { ...obj, [item.name]: 0 };
       },
-      {
-        Oficina: 0,
-        Venta: 0,
-        Formacion: 0,
-        Programar: 0,
-        total: 0
-      }
+      { total: 0 }
     );
+    const tiempoTotales = listaTerminado.reduce((time, item) => {
+      const { duracion } = item;
+      const key = item.actividad;
+      const total = time.total + duracion;
+      const type = (time[key] ? time[key] : 0) + duracion;
+      return { ...time, total, [key]: type };
+    }, typesNames);
     const tiempoTotalesMinutos = Object.keys(tiempoTotales).reduce(
       (time, key) => {
         const value = tiempoTotales[key];
@@ -218,22 +279,13 @@ class FicharClass extends Component {
     const tiempoTotalesFormated = Object.keys(tiempoTotales).reduce(
       (time, key) => {
         const value = tiempoTotales[key];
-        const timeObject = moment.duration(value);
-        const formatedValue = `${timeObject.hours()} horas y ${timeObject.minutes()} minutos.`;
+        // const timeObject = moment.duration(value);
+        const formatedValue = this.getDutationFormated(value);
         return { ...time, [key]: formatedValue };
       },
       {}
     );
     const tiempoTotalDia = tiempoTotalesFormated.total;
-    const tiempoFormacion = tiempoTotalesFormated.Formacion;
-    const tiempoOficina = tiempoTotalesFormated.Oficina;
-    const tiempoVentas = tiempoTotalesFormated.Venta;
-    const tiempoProgramacion = tiempoTotalesFormated.Programar;
-
-    const tiempoVentasEstadistica = tiempoTotalesMinutos.Venta;
-    const tiempoFormacionEstadistica = tiempoTotalesMinutos.Formacion;
-    const tiempoOficinaEstadistica = tiempoTotalesMinutos.Oficina;
-    const tiempoProgramacionEstadistica = tiempoTotalesMinutos.Programar;
     return (
       <>
         <div className="card precios">
@@ -244,11 +296,15 @@ class FicharClass extends Component {
                 onChange={this.handleChange}
                 className="form-control"
                 id="actividad"
+                value={actividad}
               >
-                <option>Oficina</option>
-                <option>Venta</option>
-                <option>Formacion</option>
-                <option>Programar</option>
+                {fichajesTypes.map(({ name, key }) => {
+                  return (
+                    <option key={key} value={name}>
+                      {name}
+                    </option>
+                  );
+                })}
               </select>
             </div>
             <button
@@ -276,16 +332,8 @@ class FicharClass extends Component {
               tiempoTotalDia={tiempoTotalDia}
             />
             <EstadisticaTrabajoDia
-              tiempoProgramacionEstadistica={tiempoProgramacionEstadistica}
-              tiempoOficinaEstadistica={tiempoOficinaEstadistica}
-              tiempoFormacionEstadistica={tiempoFormacionEstadistica}
-              listaTerminado={listaTerminado}
-              tiempoTotalDia={tiempoTotalDia}
-              tiempoFormacion={tiempoFormacion}
-              tiempoOficina={tiempoOficina}
-              tiempoProgramacion={tiempoProgramacion}
-              tiempoVentas={tiempoVentas}
-              tiempoVentasEstadistica={tiempoVentasEstadistica}
+              tiempoTotalesFormated={tiempoTotalesFormated}
+              tiempoTotalesMinutos={tiempoTotalesMinutos}
             />
           </div>
         )}
