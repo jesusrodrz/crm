@@ -26,6 +26,7 @@ class VisitasClass extends Component {
       listaImagenes: [],
       fields: [],
       fieldsValues: [],
+      cargandoImagenes: false,
       auth
     };
   }
@@ -105,6 +106,10 @@ class VisitasClass extends Component {
     }
   };
 
+  setCargandoImagenes = state => {
+    this.setState({ cargandoImagenes: state });
+  };
+
   submitInformation = e => {
     const {
       nombreGerente,
@@ -116,6 +121,7 @@ class VisitasClass extends Component {
       nombreNegocio,
       poblacion,
       listaImagenes,
+      cargandoImagenes,
       codigoPostal
     } = this.state;
 
@@ -136,7 +142,10 @@ class VisitasClass extends Component {
       swal('Por favor rellena el nombre del Negocio');
     } else if (!valid) {
       swal('Por favor rellena los campos de la visita que son requeridos');
+    } else if (cargandoImagenes) {
+      swal('Espera a que las imagenes se guarden...');
     } else {
+      console.log(cargandoImagenes);
       const { user } = this.state.auth;
       const { fieldsValues } = this.state;
       const formatValues = fieldsValues.reduce(
@@ -331,7 +340,10 @@ class VisitasClass extends Component {
           <div className="card-body">
             <h5 className="card-title">Añade la tarjeta de Visita</h5>
             <div className="form-group">
-              <FileUpload listaImagenes={this.state.listaImagenes} />
+              <FileUpload
+                listaImagenes={this.state.listaImagenes}
+                setCargando={this.setCargandoImagenes}
+              />
             </div>
           </div>
         </div>

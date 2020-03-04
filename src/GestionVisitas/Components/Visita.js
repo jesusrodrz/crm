@@ -49,7 +49,6 @@ export const Visita = props => {
                     alt={image.nombreTarjeta}
                     className="img-thumbnail"
                   />
-                  />
                 </div>
               );
             })}

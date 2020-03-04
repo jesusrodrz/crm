@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './Login.css';
+import { Link } from 'react-router-dom';
 import { firebaseApp } from '../../firebase/firebase';
 
 export class Login extends Component {
@@ -81,6 +82,14 @@ export class Login extends Component {
               >
                 {inciarSesion ? 'Iniciar Sesion' : 'Cerrar Sesion'}
               </button>
+              <br />
+              <br />
+              <p>
+                ¿Perdiste tu contraseña?
+                <Link className="btn btn-link" to="/recuperar">
+                  Recuperar
+                </Link>
+              </p>
             </form>
           </div>
         </div>

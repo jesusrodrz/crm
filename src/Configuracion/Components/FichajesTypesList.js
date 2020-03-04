@@ -118,7 +118,7 @@ export default function FichajesTypesList({ data, setFichajes }) {
                 className="btn btn-primary btn-sm"
                 onClick={guardarFichaje}
               >
-                {saving ? 'Guardando...2' : 'Guardar2'}
+                {saving ? 'Guardando...2' : 'Guardar'}
               </button>
             )}
 
@@ -151,7 +151,7 @@ export default function FichajesTypesList({ data, setFichajes }) {
                 className="btn btn-primary btn-sm"
                 onClick={guardarFichaje}
               >
-                {saving ? 'Guardando...1' : 'Guardar1'}
+                {saving ? 'Guardando...1' : 'Guardar'}
               </button>
               <button
                 type="button"

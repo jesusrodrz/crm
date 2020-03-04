@@ -14,6 +14,7 @@ import { Signup } from '../Signup/Container/Signup';
 import Vendedores from '../Vendedores/Container/Vendedores';
 import { Spinner } from '../Spinner/Container/Spinner';
 import Configuracion from '../Configuracion/Container/Configuracion';
+import Recuperar from '../Recuperar';
 
 const RutasApp = () => {
   const { authenticated, login, user, loading } = useAuthValue();
@@ -119,6 +120,9 @@ const RutasApp = () => {
           </Route>
           <Route exact path="/signup">
             <Signup />
+          </Route>
+          <Route exact path="/recuperar">
+            <Recuperar />
           </Route>
           <Route>
             <main>no encontrado</main>

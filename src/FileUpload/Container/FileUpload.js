@@ -8,7 +8,8 @@ export class FileUpload extends Component {
     this.state = {
       listaImagenes: this.props.listaImagenes,
       contratoSrc: '',
-      nombreTarjeta: ''
+      nombreTarjeta: '',
+      setCargando: this.props.setCargando
     };
   }
 
@@ -48,6 +49,8 @@ export class FileUpload extends Component {
   handleUpload = imagen => {
     const storageRef = firebaseApp.storage().ref(`/targetas/${imagen.name}`);
     const tarea = storageRef.put(imagen);
+    this.state.setCargando(true);
+
     tarea.on(
       'state_changed',
       snapshot => {
@@ -79,6 +82,7 @@ export class FileUpload extends Component {
             listaImagenes
           });
         });
+        this.state.setCargando(false);
         swal('El archivo se ha subido perfectamente');
       }
     );
