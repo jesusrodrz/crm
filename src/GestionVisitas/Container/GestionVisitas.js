@@ -126,7 +126,12 @@ class GestionVisitasClass extends Component {
       probVenta,
       emailEnviado,
       tieneInteres,
-      visitaId
+      nombreGerente,
+      emailGerente,
+      visitaId,
+      poblacion,
+      codigoPostal,
+      telefonoGerente
     } = this.state;
 
     const fechaProx = Number(moment(proxAccion).format('x'));
@@ -136,7 +141,12 @@ class GestionVisitasClass extends Component {
       fechaProx,
       emailEnviado,
       tieneInteres,
-      probVenta
+      nombreGerente,
+      emailGerente,
+      probVenta,
+      codigoPostal,
+      poblacion,
+      telefonoGerente
     };
     const parsedModificacion = Object.keys(modificacion).reduce(
       (current, key) => {

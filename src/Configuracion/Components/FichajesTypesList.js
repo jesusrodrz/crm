@@ -45,12 +45,13 @@ export default function FichajesTypesList({ data, setFichajes }) {
     try {
       setSaving(true);
       const fichajeToSave = fichaje.edit ? { name: fichaje.name } : fichaje;
+      removeFichaje();
       await db
         .collection('fichajeTypes')
         .doc(fichaje.key)
         .set({ ...fichajeToSave, userId: uid }, { merge: true });
       swal('se ha guardado correctamente');
-      removeFichaje();
+
       setSaving(false);
     } catch (error) {
       swal('Error', `Error: ${JSON.stringify(error)}`, 'error');
@@ -132,7 +133,7 @@ export default function FichajesTypesList({ data, setFichajes }) {
           </td>
         </tr>
       ))}
-      <tr key={uuid()}>
+      <tr>
         {isFichajeSet ? (
           <>
             <td>{length + 1}</td>

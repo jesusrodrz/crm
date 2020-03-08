@@ -23,19 +23,19 @@ export const Visita = props => {
     borrando,
     loading
   } = props;
-  // console.log(fields, visitaFields);
   const fieldToShow = fields.map(item => {
     const fieldInVisita = visitaFields.find(itemOp => itemOp.id === item.id);
     const newOpctions = item.options.map(opt => {
       const option = { ...opt };
-      if (fieldInVisita.values.includes(option.key)) {
-        option.select = true;
+      if (fieldInVisita) {
+        if (fieldInVisita.values.includes(option.key)) {
+          option.select = true;
+        }
       }
       return option;
     });
     return { ...item, options: newOpctions };
   });
-  // console.log(fieldToShow);
   return (
     <div className="card activity card-visista">
       <div className="row">
@@ -58,19 +58,59 @@ export const Visita = props => {
         <div className="row">
           <div className="col-12 col-md-6">
             <p className="card-text">
-              <strong>Nombre Gerente:</strong> {nombreGerente}
+              <strong>Nombre Gerente:</strong>{' '}
+              <input
+                onChange={handleChange}
+                type="text"
+                className="form-control form-control-sm form-control-inline"
+                id="nombreGerente"
+                value={nombreGerente}
+                // rows="3"
+              />
             </p>
             <p className="card-text">
-              <strong>Email:</strong> {emailGerente}
+              <strong>Email:</strong>{' '}
+              <input
+                onChange={handleChange}
+                type="text"
+                className="form-control form-control-sm form-control-inline"
+                id="emailGerente"
+                value={emailGerente}
+                // rows="3"
+              />
             </p>
             <p className="card-text">
-              <strong>Teléfono:</strong> {telefonoGerente}{' '}
+              <strong>Teléfono:</strong>{' '}
+              <input
+                onChange={handleChange}
+                type="text"
+                className="form-control form-control-sm form-control-inline"
+                id="telefonoGerente"
+                value={telefonoGerente}
+                // rows="3"
+              />
             </p>
             <p className="card-text">
-              <strong>Poblacion:</strong> {poblacion}
+              <strong>Poblacion:</strong>{' '}
+              <input
+                onChange={handleChange}
+                type="text"
+                className="form-control form-control-sm form-control-inline"
+                id="poblacion"
+                value={poblacion}
+                // rows="3"
+              />
             </p>
             <p className="card-text">
-              <strong>Codigo Postal:</strong> {codigoPostal}
+              <strong>Codigo Postal:</strong>{' '}
+              <input
+                onChange={handleChange}
+                type="text"
+                className="form-control form-control-sm form-control-inline"
+                id="codigoPostal"
+                value={codigoPostal}
+                // rows="3"
+              />
             </p>
           </div>
           <div className="col-12 col-md-6">

@@ -19,3 +19,7 @@
 .card-visista .option {
   margin: 0;
 }
+.form-control-inline {
+  display: inline-block !important;
+  width: auto !important;
+}

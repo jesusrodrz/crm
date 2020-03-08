@@ -25,7 +25,7 @@ export default function Recuperar() {
           'error'
         );
       });
-  });
+  }, []);
   return (
     <div className="centrarLogin">
       <div className="card">
