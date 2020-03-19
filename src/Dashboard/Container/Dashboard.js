@@ -10,6 +10,7 @@ import tiempos from '../../Images/tiempos.jpg';
 import { HeaderNav } from '../../Header/Container/HeaderNav';
 import '../../App.css';
 import { useAuthValue } from '../../context/context';
+import { NAV_LINKS } from '../../Constants/Constants';
 
 const CardsVendedor = () => (
   <>
@@ -135,6 +136,15 @@ const CardsAdmin = () => (
             direction="/trabajorealizado"
           />
         </div>
+        <div className="col-12 col-md-4">
+          <Activity
+            image={tiempos}
+            titleActivity="Clientes"
+            descriptionActivity="Agregar, modifica y elimina clientes"
+            buttonActivity="Gestionar"
+            direction="/clientes"
+          />
+        </div>
       </div>
     </>
   </>
@@ -145,12 +155,29 @@ export function Dashboard({ userType }) {
       data: { name }
     }
   } = useAuthValue();
+  const cards = NAV_LINKS.filter(card => {
+    return card.user.includes(userType);
+  });
+  console.log(cards);
   return (
     <div>
       <HeaderNav userName={name} noMenu />
       <div className="container pb-5">
-        {userType === 'vendedor' && <CardsVendedor />}
-        {userType === 'admin' && <CardsAdmin />}
+        <div className="row">
+          {cards.map(card => (
+            <div className="col-12 col-md-4">
+              <Activity
+                image={card.image}
+                titleActivity={card.titleActivity}
+                descriptionActivity={card.descriptionActivity}
+                buttonActivity={card.buttonActivity}
+                direction={card.link}
+              />
+            </div>
+          ))}
+        </div>
+        {/* {userType === 'vendedor' && <CardsVendedor />}
+        {userType === 'admin' && <CardsAdmin />} */}
       </div>
     </div>
   );

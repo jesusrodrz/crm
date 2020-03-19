@@ -12,6 +12,7 @@ export const VisualizacionTrabajosDia = props => {
             <tr>
               <th scope="col">Nº</th>
               <th scope="col">Actividad</th>
+              <th scope="col">Cliente</th>
               <th scope="col">Hora de Comienzo</th>
               <th scope="col">Tiempo Total</th>
               <th scope="col">Hora de Finalizacion</th>
@@ -23,6 +24,7 @@ export const VisualizacionTrabajosDia = props => {
                 <tr key={i}>
                   <th scope="row">{i + 1}</th>
                   <td>{fichaje.actividad}</td>
+                  <td>{fichaje.clienteNombre}</td>
                   <td>{fichaje.comienzoFormated}</td>
                   <td>{fichaje.duracionFormated}</td>
                   <td>{fichaje.paradoFormated}</td>

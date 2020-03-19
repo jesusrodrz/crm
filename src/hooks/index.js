@@ -136,3 +136,30 @@ export const useCollectionByRef = (collection, query) => {
 
   return [data, loading];
 };
+export const useCollectionCallback = (collection, callbackQuery) => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (!callbackQuery) {
+      return () => {};
+    }
+    const query = callbackQuery(db.collection(collection));
+    if (!query) {
+      return () => {};
+    }
+    const unsubcribe = query.onSnapshot(snapshot => {
+      const dataSanp = snapshot.docs.map(doc => ({
+        ...doc.data(),
+        id: doc.id
+      }));
+      if (loading) {
+        setLoading(false);
+      }
+      setData(dataSanp);
+    });
+
+    return () => unsubcribe();
+  }, [callbackQuery]);
+
+  return [data, loading];
+};

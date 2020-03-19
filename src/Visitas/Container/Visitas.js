@@ -27,12 +27,15 @@ class VisitasClass extends Component {
       fields: [],
       fieldsValues: [],
       cargandoImagenes: false,
+      cliente: 'default',
+      clientes: [],
       auth
     };
   }
 
   componentDidMount() {
     this.fetchFields();
+    this.fetchClientes();
   }
 
   componentWillUnmount() {
@@ -46,6 +49,25 @@ class VisitasClass extends Component {
     this.setState({
       [name]: value
     });
+  };
+
+  handleClientChange = ({ target }) => {
+    // console.log(e);
+    const { value } = target;
+    const { clientes } = this.state;
+    const cliente = clientes.find(item => item.id === value);
+    const clienteToSet =
+      value !== 'default'
+        ? cliente
+        : {
+            nombreGerente: '',
+            telefonoGerente: '',
+            emailGerente: '',
+            nombreNegocio: '',
+            poblacion: '',
+            codigoPostal: ''
+          };
+    this.setState(state => ({ ...state, cliente: value, ...clienteToSet }));
   };
 
   handleChangeDynamicFields = (e, valueData) => {
@@ -110,6 +132,34 @@ class VisitasClass extends Component {
     this.setState({ cargandoImagenes: state });
   };
 
+  fetchClientes = async () => {
+    const { auth } = this.state;
+    const {
+      user: {
+        uid,
+        data: { type, userAdmin }
+      }
+    } = auth;
+    const id = type === 'admin' ? uid : userAdmin;
+
+    const snapshot = await db
+      .collection('clientes')
+      .where('userAdmin', '==', id)
+      .get();
+
+    const clientes = snapshot.docs.map(item => {
+      return { ...item.data(), id: item.id };
+    });
+    if (!this.mounted) {
+      return;
+    }
+    const defaultCliente = {
+      id: 'default',
+      nombreNegocio: '--selecionar--'
+    };
+    this.setState({ clientes: [defaultCliente, ...clientes] });
+  };
+
   submitInformation = e => {
     const {
       nombreGerente,
@@ -146,8 +196,10 @@ class VisitasClass extends Component {
       swal('Espera a que las imagenes se guarden...');
     } else {
       console.log(cargandoImagenes);
-      const { user } = this.state.auth;
-      const { fieldsValues } = this.state;
+      const {
+        auth: { user },
+        fieldsValues
+      } = this.state;
       const formatValues = fieldsValues.reduce(
         (currentArray, { id, value }) => {
           const exists = currentArray.find(el => el.id === id);
@@ -216,11 +268,38 @@ class VisitasClass extends Component {
   };
 
   render() {
-    const { fields } = this.state;
+    const {
+      fields,
+      clientes,
+      cliente,
+      poblacion,
+      nombreNegocio,
+      codigoPostal,
+      emailGerente,
+      nombreGerente,
+      telefonoGerente
+    } = this.state;
     return (
       <form>
         <div className="card precios">
           <div className="card-body">
+            <div className="form-group">
+              <label>Cliente</label>
+              <select
+                onChange={this.handleClientChange}
+                className="form-control"
+                id="actividad"
+                value={cliente}
+              >
+                {clientes.map(({ nombreNegocio: nombre, id }) => {
+                  return (
+                    <option key={id} value={id}>
+                      {nombre}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
             <h5 className="card-title">Datos Principales</h5>
             <label>Nombre de la Empresa</label>
             <input
@@ -230,10 +309,12 @@ class VisitasClass extends Component {
               id="nombreNegocio"
               placeholder="Escribe el nombre de la empresa"
               required
+              value={nombreNegocio}
             />
             <label>Poblacion</label>
             <input
               onChange={this.handleChange}
+              value={poblacion}
               type="text"
               className="form-control"
               id="poblacion"
@@ -246,6 +327,7 @@ class VisitasClass extends Component {
               className="form-control"
               id="codigoPostal"
               placeholder="46000"
+              value={codigoPostal}
             />
           </div>
         </div>
@@ -274,6 +356,7 @@ class VisitasClass extends Component {
                 className="form-control"
                 id="nombreGerente"
                 placeholder="Nombre Gerente"
+                value={nombreGerente}
               />
             </div>
             <div className="form-group">
@@ -284,6 +367,7 @@ class VisitasClass extends Component {
                 className="form-control"
                 id="telefonoGerente"
                 placeholder="Teléfono"
+                value={telefonoGerente}
               />
             </div>
             <div className="form-group">
@@ -294,6 +378,7 @@ class VisitasClass extends Component {
                 className="form-control"
                 id="emailGerente"
                 placeholder="gerente@gerente.com"
+                value={emailGerente}
               />
             </div>
           </div>

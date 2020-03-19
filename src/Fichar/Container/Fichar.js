@@ -16,8 +16,10 @@ class FicharClass extends Component {
     this.state = {
       auth: this.props.auth,
       actividad: '',
+      cliente: 'default',
       cargandoTrabajos: false,
       cargandoTerminados: false,
+      clientes: [],
       listaTrabajo: [],
       fichajesTypes: [],
       listaTerminado: []
@@ -29,6 +31,7 @@ class FicharClass extends Component {
     this.subscribeTrabajos();
     this.subscribeTrabajosTerminados();
     this.fetchFichajesTypes();
+    this.fetchClientes();
     // this.updateDurationTrabajos();
   };
 
@@ -92,7 +95,9 @@ class FicharClass extends Component {
     const comienzoString = moment().format('YYYY/MM/DD HH:mm');
     // const sam = moment(1582933115163).format('HH:mm');
     window.navigator.geolocation.getCurrentPosition(success => {
-      const { actividad } = this.state;
+      const { actividad, cliente, clientes } = this.state;
+      const clienteNombre = clientes.find(item => item.id === cliente)
+        .nombreNegocio;
       const trabajo = {
         userId: uid,
         userAdmin: type === 'admin' ? uid : userAdmin,
@@ -104,6 +109,8 @@ class FicharClass extends Component {
         parado: 0,
         duracion: 0,
         estado: 'Trabajando',
+        clienteNombre,
+        cliente,
         lugarEmpezado: {
           longitude: success.coords.longitude,
           latitude: success.coords.latitude
@@ -190,6 +197,34 @@ class FicharClass extends Component {
       });
   };
 
+  fetchClientes = async () => {
+    const { auth } = this.state;
+    const {
+      user: {
+        uid,
+        data: { type, userAdmin }
+      }
+    } = auth;
+    const id = type === 'admin' ? uid : userAdmin;
+
+    const snapshot = await db
+      .collection('clientes')
+      .where('userAdmin', '==', id)
+      .get();
+
+    const clientes = snapshot.docs.map(item => {
+      return { ...item.data(), id: item.id };
+    });
+    if (!this.mounted) {
+      return;
+    }
+    const defaultCliente = {
+      id: 'default',
+      nombreNegocio: 'Sin cliente'
+    };
+    this.setState({ clientes: [defaultCliente, ...clientes] });
+  };
+
   getDutationFormated = duration => {
     const timeObject = moment.duration(duration);
     return `${timeObject.hours()} horas, ${timeObject.minutes()} minutos y ${timeObject.seconds()} segundos.`;
@@ -251,7 +286,9 @@ class FicharClass extends Component {
       cargandoTrabajos,
       listaTerminado,
       actividad,
-      fichajesTypes
+      fichajesTypes,
+      clientes,
+      cliente
     } = this.state;
     const loading = cargandoTrabajos || cargandoTerminados;
     const typesNames = fichajesTypes.reduce(
@@ -302,6 +339,23 @@ class FicharClass extends Component {
                   return (
                     <option key={key} value={name}>
                       {name}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Cliente</label>
+              <select
+                onChange={this.handleChange}
+                className="form-control"
+                id="cliente"
+                value={cliente}
+              >
+                {clientes.map(({ nombreNegocio, id }) => {
+                  return (
+                    <option key={id} value={id}>
+                      {nombreNegocio}
                     </option>
                   );
                 })}
