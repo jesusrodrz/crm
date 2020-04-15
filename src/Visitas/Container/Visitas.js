@@ -6,6 +6,12 @@ import { db } from '../../firebase/firebase';
 import { FileUpload } from '../../FileUpload/Container/FileUpload';
 import { withAuthValue } from '../../context/context';
 import FieldInput from '../Components/FieldInput';
+import {
+  orderFields,
+  dynamicFieldsValues,
+  validadeDynamicFields,
+  formatDynamicFieldValues
+} from '../../helpers/helpers';
 
 class VisitasClass extends Component {
   constructor(props) {
@@ -29,6 +35,7 @@ class VisitasClass extends Component {
       cargandoImagenes: false,
       cliente: 'default',
       clientes: [],
+      saving: false,
       auth
     };
   }
@@ -71,28 +78,13 @@ class VisitasClass extends Component {
   };
 
   handleChangeDynamicFields = (e, valueData) => {
-    // console.log(e);
     const { fieldsValues } = this.state;
-    const { id, checked, value } = valueData;
-
-    const newFieldsValues = [...fieldsValues, valueData].filter(
-      ({ typeCampo, ...item }, i) => {
-        // console.log(i, checked);
-        if (typeCampo === 'simple' && item.value !== value && id === item.id) {
-          return false;
-        }
-        if (typeCampo === 'multiple' && id === item.id) {
-          if (item.value === value && !checked) {
-            return false;
-          }
-          // return false;
-        }
-        return true;
-      }
-    );
-    // console.log(newFieldsValues);
-    this.setState(state => ({ ...state, fieldsValues: newFieldsValues }));
-    // this.validadeFields
+    const fields = dynamicFieldsValues(fieldsValues, valueData);
+    console.log(fields);
+    this.setState(state => ({
+      ...state,
+      fieldsValues: fields
+    }));
   };
 
   fetchFields = async () => {
@@ -108,23 +100,15 @@ class VisitasClass extends Component {
     const dataSnapshot = await db
       .collection('dynamicFields')
       .where('userId', '==', id)
+      .where('available', '==', true)
       .get();
     const fields = dataSnapshot.docs.map(item => ({
       ...item.data(),
       id: item.id
     }));
-    const orderedFields = [...fields].sort((a, b) => {
-      if (a.typeCampo === 'simple' && b.typeCampo === 'multiple') {
-        return -1;
-      }
-      if (b.typeCampo === 'simple' && a.typeCampo === 'multiple') {
-        return 1;
-      }
 
-      return 0;
-    });
     if (this.mounted) {
-      this.setState(state => ({ ...state, fields: orderedFields }));
+      this.setState(state => ({ ...state, fields: orderFields(fields) }));
     }
   };
 
@@ -181,7 +165,13 @@ class VisitasClass extends Component {
     const diaHoy = moment().valueOf();
 
     e.preventDefault();
-    const valid = this.validadeFields();
+    const {
+      auth: { user },
+      fieldsValues,
+      fields
+    } = this.state;
+    const valid = validadeDynamicFields(fields, fieldsValues);
+
     if (codigoPostal === '') {
       swal('Por favor rellena el codigo postal');
     } else if (probVenta === '') {
@@ -195,23 +185,19 @@ class VisitasClass extends Component {
     } else if (cargandoImagenes) {
       swal('Espera a que las imagenes se guarden...');
     } else {
-      console.log(cargandoImagenes);
-      const {
-        auth: { user },
-        fieldsValues
-      } = this.state;
-      const formatValues = fieldsValues.reduce(
-        (currentArray, { id, value }) => {
-          const exists = currentArray.find(el => el.id === id);
-          if (!exists) {
-            currentArray.push({ values: [value], id });
-            return currentArray;
-          }
-          exists.values.push(value);
-          return currentArray;
-        },
-        []
-      );
+      // const formatValues = fieldsValues.reduce(
+      //   (currentArray, { id, value }) => {
+      //     const exists = currentArray.find(el => el.id === id);
+      //     if (!exists) {
+      //       currentArray.push({ values: [value], id });
+      //       return currentArray;
+      //     }
+      //     exists.values.push(value);
+      //     return currentArray;
+      //   },
+      //   []
+      // );
+      const formatValues = formatDynamicFieldValues(fieldsValues);
       const {
         uid,
         data: { type, userAdmin }
@@ -235,9 +221,11 @@ class VisitasClass extends Component {
       };
 
       // console.log(visita);
+      this.setState({ saving: true });
       db.collection('visitas')
         .add(visita)
         .then(ref => {
+          this.setState({ saving: false });
           swal({
             text: 'La Visita se ha añadido correctamente',
             timer: 900
@@ -249,6 +237,7 @@ class VisitasClass extends Component {
             `Error: ${JSON.stringify(error)}`,
             'error'
           );
+          this.setState({ saving: false });
         });
     }
   };
@@ -277,7 +266,8 @@ class VisitasClass extends Component {
       codigoPostal,
       emailGerente,
       nombreGerente,
-      telefonoGerente
+      telefonoGerente,
+      saving
     } = this.state;
     return (
       <form>
@@ -436,8 +426,18 @@ class VisitasClass extends Component {
           type="submit"
           onClick={this.submitInformation}
           className="btn btn-success botonSuccess"
+          disabled={saving}
         >
-          Enviar
+          {!saving ? (
+            'Enviar'
+          ) : (
+            <>
+              <span>Enviando...</span>
+              <div className="spinner-border spinner-border-sm" role="status">
+                <span className="sr-only">Loading...</span>
+              </div>
+            </>
+          )}
         </button>
       </form>
     );

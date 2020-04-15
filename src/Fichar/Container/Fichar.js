@@ -7,15 +7,24 @@ import { VisualizacionTrabajosDia } from '../Components/VisualizacionTrabajosDia
 import { EstadisticaTrabajoDia } from '../Components/EstadisticaTrabajoDia';
 import { Spinner } from '../../Spinner/Container/Spinner';
 import { withAuthValue } from '../../context/context';
+import {
+  getOptionsObj,
+  getTimesObj,
+  getTimesMinutes,
+  getDutationFormated,
+  getTimesFormated
+} from '../../helpers/helpers';
 
 class FicharClass extends Component {
   constructor(props) {
     super(props);
     this.subscriptions = [];
     this.mounted = false;
+    const { auth } = this.props;
     this.state = {
-      auth: this.props.auth,
+      auth,
       actividad: '',
+      project: 'Sin proyecto',
       cliente: 'default',
       cargandoTrabajos: false,
       cargandoTerminados: false,
@@ -95,9 +104,10 @@ class FicharClass extends Component {
     const comienzoString = moment().format('YYYY/MM/DD HH:mm');
     // const sam = moment(1582933115163).format('HH:mm');
     window.navigator.geolocation.getCurrentPosition(success => {
-      const { actividad, cliente, clientes } = this.state;
+      const { actividad, cliente, clientes, project } = this.state;
       const clienteNombre = clientes.find(item => item.id === cliente)
         .nombreNegocio;
+
       const trabajo = {
         userId: uid,
         userAdmin: type === 'admin' ? uid : userAdmin,
@@ -111,6 +121,7 @@ class FicharClass extends Component {
         estado: 'Trabajando',
         clienteNombre,
         cliente,
+        project,
         lugarEmpezado: {
           longitude: success.coords.longitude,
           latitude: success.coords.latitude
@@ -162,7 +173,7 @@ class FicharClass extends Component {
           const comienzoFormated = moment(data.comienzo).format('HH:mm');
           const timeDiference = moment().valueOf() - data.comienzo; // hora actual menos hora de comienzo
 
-          const duracionFormated = this.getDutationFormated(timeDiference);
+          const duracionFormated = getDutationFormated(timeDiference);
           return { ...data, id: doc.id, comienzoFormated, duracionFormated };
         });
         if (subscribeUpdate) {
@@ -185,6 +196,7 @@ class FicharClass extends Component {
     const id = type === 'admin' ? uid : userAdmin;
     db.collection('fichajeTypes')
       .where('userId', '==', id)
+      .where('available', '==', true)
       .get()
       .then(snapshot => {
         if (!this.mounted) {
@@ -225,17 +237,12 @@ class FicharClass extends Component {
     this.setState({ clientes: [defaultCliente, ...clientes] });
   };
 
-  getDutationFormated = duration => {
-    const timeObject = moment.duration(duration);
-    return `${timeObject.hours()} horas, ${timeObject.minutes()} minutos y ${timeObject.seconds()} segundos.`;
-  };
-
   updateDurationTrabajos = () => {
     const intervalID = setInterval(() => {
       const { listaTrabajo } = this.state;
       const trabajos = listaTrabajo.map(item => {
         const timeDiference = moment().valueOf() - item.comienzo;
-        const duracionFormated = this.getDutationFormated(timeDiference);
+        const duracionFormated = getDutationFormated(timeDiference);
         return { ...item, duracionFormated };
       });
       this.setState({ listaTrabajo: trabajos });
@@ -251,6 +258,7 @@ class FicharClass extends Component {
       user: { uid }
     } = auth;
     const dia = moment(moment().format('YYYY/MM/DD')).valueOf();
+
     this.setState({ cargandoTerminados: true });
     const subscribe = db
       .collection('fichajes')
@@ -258,6 +266,7 @@ class FicharClass extends Component {
       .where('estado', '==', 'Terminado')
       .where('dia', '>=', dia)
       .onSnapshot(snapshot => {
+        this.setState({ cargandoTerminados: true });
         const trabajos = snapshot.docs.map(doc => {
           const data = {
             ...doc.data()
@@ -265,7 +274,7 @@ class FicharClass extends Component {
           const comienzoFormated = moment(data.comienzo).format('HH:mm:ss');
           const paradoFormated = moment(data.parado).format('HH:mm:ss');
           const timeDiference = data.parado - data.comienzo; // hora actual menos hora de comienzo
-          const duracionFormated = this.getDutationFormated(timeDiference);
+          const duracionFormated = getDutationFormated(timeDiference);
           return {
             ...data,
             id: doc.id,
@@ -288,41 +297,32 @@ class FicharClass extends Component {
       actividad,
       fichajesTypes,
       clientes,
-      cliente
+      cliente,
+      project
     } = this.state;
+
     const loading = cargandoTrabajos || cargandoTerminados;
-    const typesNames = fichajesTypes.reduce(
-      (obj, item) => {
-        return { ...obj, [item.name]: 0 };
-      },
-      { total: 0 }
+
+    const typesNames = getOptionsObj(fichajesTypes, 'name');
+    const typesClientes = getOptionsObj(clientes, 'nombreNegocio');
+
+    const tiempoTotales = getTimesObj(listaTerminado, typesNames, 'actividad');
+    const tiempoTotalesClientes = getTimesObj(
+      listaTerminado,
+      typesClientes,
+      'clienteNombre'
     );
-    const tiempoTotales = listaTerminado.reduce((time, item) => {
-      const { duracion } = item;
-      const key = item.actividad;
-      const total = time.total + duracion;
-      const type = (time[key] ? time[key] : 0) + duracion;
-      return { ...time, total, [key]: type };
-    }, typesNames);
-    const tiempoTotalesMinutos = Object.keys(tiempoTotales).reduce(
-      (time, key) => {
-        const value = tiempoTotales[key];
-        const timeObject = moment.duration(value);
-        const formatedValue = Math.round(timeObject.asMinutes());
-        return { ...time, [key]: formatedValue };
-      },
-      {}
-    );
-    const tiempoTotalesFormated = Object.keys(tiempoTotales).reduce(
-      (time, key) => {
-        const value = tiempoTotales[key];
-        // const timeObject = moment.duration(value);
-        const formatedValue = this.getDutationFormated(value);
-        return { ...time, [key]: formatedValue };
-      },
-      {}
+
+    const tiempoTotalesMinutos = getTimesMinutes(tiempoTotales);
+    const tiempoTotalesMinutosClientes = getTimesMinutes(tiempoTotalesClientes);
+
+    const tiempoTotalesFormated = getTimesFormated(tiempoTotales);
+    const tiempoTotalesFormatedClientes = getTimesFormated(
+      tiempoTotalesClientes
     );
     const tiempoTotalDia = tiempoTotalesFormated.total;
+    const projects = clientes.find(item => item.id === cliente)?.projects;
+    console.log('hola: ', listaTerminado);
     return (
       <>
         <div className="card precios">
@@ -361,6 +361,27 @@ class FicharClass extends Component {
                 })}
               </select>
             </div>
+            {projects && (
+              <div className="form-group">
+                <label>Proyecto</label>
+                <select
+                  onChange={this.handleChange}
+                  className="form-control"
+                  id="project"
+                  value={project}
+                >
+                  <option value="Sin Proyecto">Sin Proyecto</option>
+                  {projects.map(item => {
+                    return (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            )}
+
             <button
               type="submit"
               onClick={this.submitInformation}
@@ -388,6 +409,12 @@ class FicharClass extends Component {
             <EstadisticaTrabajoDia
               tiempoTotalesFormated={tiempoTotalesFormated}
               tiempoTotalesMinutos={tiempoTotalesMinutos}
+              title="Fichajes por tipos"
+            />
+            <EstadisticaTrabajoDia
+              tiempoTotalesFormated={tiempoTotalesFormatedClientes}
+              tiempoTotalesMinutos={tiempoTotalesMinutosClientes}
+              title="Fichajes por cliente"
             />
           </div>
         )}

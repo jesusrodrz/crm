@@ -17,6 +17,7 @@ export default function FichajesTypesList({ data, setFichajes }) {
     setIsFichajeSet(true);
     setFichaje({
       name: '',
+      available: true,
       key: uuid()
     });
   }, []);
@@ -31,7 +32,6 @@ export default function FichajesTypesList({ data, setFichajes }) {
       const newData = [...data];
       const newFichaje = { ...newData[i], edit: true };
       newData[i] = newFichaje;
-      console.log(newFichaje);
       setFichajes(newData);
       setFichaje(newFichaje);
     },
@@ -64,8 +64,8 @@ export default function FichajesTypesList({ data, setFichajes }) {
       inputRef.current.focus();
     }
   }, [isFichajeSet]);
-  const deleteFichaje = useCallback(
-    async i => {
+  const hanldeAvailableFichaje = useCallback(
+    async (i, value) => {
       const { edit, id } = data[i];
       // console.log('ok', data[i]);
       if (edit) {
@@ -76,8 +76,9 @@ export default function FichajesTypesList({ data, setFichajes }) {
           await db
             .collection('fichajeTypes')
             .doc(id)
-            .delete();
-          swal('Se ha borrado');
+            .set({ available: value }, { merge: true });
+          // .delete();
+          swal(`Campo ${value ? 'Habilitado' : 'Eliminado'}`);
         } catch (error) {
           swal('Error', `Error: ${JSON.stringify(error)}`, 'error');
         }
@@ -88,7 +89,7 @@ export default function FichajesTypesList({ data, setFichajes }) {
   );
   return (
     <>
-      {data.map(({ name, id, edit }, i) => (
+      {data.map(({ name, id, edit, available }, i) => (
         <tr key={id}>
           <td>{i + 1}</td>
           <td>
@@ -119,17 +120,26 @@ export default function FichajesTypesList({ data, setFichajes }) {
                 className="btn btn-primary btn-sm"
                 onClick={guardarFichaje}
               >
-                {saving ? 'Guardando...2' : 'Guardar'}
+                {saving ? 'Guardando' : 'Guardar'}
               </button>
             )}
-
-            <button
-              type="button"
-              className="btn btn-outline-danger btn-sm ml-2"
-              onClick={() => deleteFichaje(i)}
-            >
-              <span>×</span>
-            </button>
+            {available ? (
+              <button
+                type="button"
+                className="btn btn-outline-danger btn-sm ml-2"
+                onClick={() => hanldeAvailableFichaje(i, false)}
+              >
+                <span>Eliminar</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-outline-info btn-sm ml-2"
+                onClick={() => hanldeAvailableFichaje(i, true)}
+              >
+                <span>Habilitar</span>
+              </button>
+            )}
           </td>
         </tr>
       ))}
@@ -152,7 +162,7 @@ export default function FichajesTypesList({ data, setFichajes }) {
                 className="btn btn-primary btn-sm"
                 onClick={guardarFichaje}
               >
-                {saving ? 'Guardando...1' : 'Guardar'}
+                {saving ? 'Guardando...' : 'Guardar'}
               </button>
               <button
                 type="button"

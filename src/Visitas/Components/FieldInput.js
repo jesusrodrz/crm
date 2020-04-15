@@ -10,6 +10,9 @@ export default function FieldInput({ data, handleOnChange }) {
   );
   const handleChange = useCallback(
     e => {
+      if (!handleOnChange) {
+        return;
+      }
       const { value, checked } = e.target;
       handleOnChange(e, { value, id, typeCampo, checked });
     },

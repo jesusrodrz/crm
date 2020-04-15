@@ -13,11 +13,11 @@ export default function Layout({ children, ...props }) {
   } = useAuthValue();
 
   const { listen } = useHistory();
-  // history.listen()
+
   useEffect(() => {
-    console.log('history');
     return listen(() => setMenu(false));
   }, [listen]);
+
   return (
     <div>
       <HeaderNav userName={name} togleMenu={() => setMenu(!menu)} show={menu} />

@@ -21,7 +21,8 @@ export class Signup extends Component {
     const url = window.location.search;
     const searchParams = new URLSearchParams(url);
     const userAdmin = searchParams.get('userAdmin');
-    this.setState({ userAdmin });
+    const type = searchParams.get('type');
+    this.setState({ userAdmin, type });
   }
 
   handleChange = e => {
@@ -34,7 +35,7 @@ export class Signup extends Component {
   };
 
   handleClick = async e => {
-    const { email, password, password2, userAdmin, name } = this.state;
+    const { email, password, password2, userAdmin, name, type } = this.state;
     if (password !== password2) {
       swal('Las contrasenas deben coincidir');
       return;
@@ -64,7 +65,7 @@ export class Signup extends Component {
             .collection('usersData')
             .doc(newUser.uid)
             .set({
-              type: 'vendedor',
+              type,
               userAdmin,
               email: email2,
               name

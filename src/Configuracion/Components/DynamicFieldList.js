@@ -1,7 +1,7 @@
 import React from 'react';
 import FieldListItem from './FieldListItem';
 
-export default function DynamicFieldList({ fields, edit }) {
+export default function DynamicFieldList({ fields, edit, type }) {
   if (fields.length <= 0) {
     return (
       <tr>
@@ -12,6 +12,12 @@ export default function DynamicFieldList({ fields, edit }) {
     );
   }
   return fields.map((item, i) => (
-    <FieldListItem key={item.id} data={item} i={i + 1} edit={edit} />
+    <FieldListItem
+      key={item.id}
+      data={item}
+      i={i + 1}
+      edit={edit}
+      type={type}
+    />
   ));
 }

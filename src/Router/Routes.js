@@ -16,6 +16,7 @@ import { Spinner } from '../Spinner/Container/Spinner';
 import Configuracion from '../Configuracion/Container/Configuracion';
 import Recuperar from '../Recuperar';
 import Clientes from '../Clientes/Clientes';
+import Analizar from '../Analizar/Analizar';
 
 const RutasApp = () => {
   const { authenticated, login, user, loading } = useAuthValue();
@@ -46,7 +47,7 @@ const RutasApp = () => {
             exact
             path="/estadisticas"
             authenticated={authenticated}
-            routeType={['vendedor', 'admin']}
+            routeType={['vendedor', 'admin', 'trabajador']}
             userType={type}
           >
             <Layout>
@@ -68,7 +69,7 @@ const RutasApp = () => {
             exact
             path="/fichar"
             authenticated={authenticated}
-            routeType={['vendedor', 'admin']}
+            routeType={['vendedor', 'admin', 'trabajador']}
             userType={type}
           >
             <Layout>
@@ -79,7 +80,7 @@ const RutasApp = () => {
             exact
             path="/trabajo-realizado"
             authenticated={authenticated}
-            routeType={['vendedor', 'admin']}
+            routeType={['vendedor', 'admin', 'trabajador']}
             userType={type}
           >
             <Layout>
@@ -117,6 +118,17 @@ const RutasApp = () => {
           >
             <Layout>
               <Clientes />
+            </Layout>
+          </PrivateRoute>
+          <PrivateRoute
+            exact
+            path="/analizar"
+            authenticated={authenticated}
+            routeType={['admin', 'vendedor', 'trabajador']}
+            userType={type}
+          >
+            <Layout>
+              <Analizar />
             </Layout>
           </PrivateRoute>
           <PrivateRoute

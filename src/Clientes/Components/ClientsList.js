@@ -19,7 +19,7 @@ export default function ClientsList({ data, edit, delete: deleteClient }) {
             <button
               type="button"
               className="btn btn-outline-danger btn-sm ml-2"
-              onClick={() => deleteClient(i)}
+              onClick={() => deleteClient(item.id)}
             >
               <span>×</span>
             </button>

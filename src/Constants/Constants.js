@@ -5,6 +5,15 @@ import trabajo from '../Images/trabajo.jpg';
 import configuracion from '../Images/configuracion.jpg';
 import vendedores from '../Images/vendedores.png';
 import tiempos from '../Images/tiempos.jpg';
+import clientesImg from '../Images/clientes.jpg';
+import analizarImg from '../Images/analizar.png';
+import { getColors } from '../helpers/materialColors';
+
+export const USERS_TYPES = {
+  admin: 'admin',
+  vendedor: 'vendedor',
+  trabajador: 'trabajador'
+};
 
 export const NAV_LINKS = [
   {
@@ -15,7 +24,7 @@ export const NAV_LINKS = [
     buttonActivity: 'Visita',
     link: '/Visitas',
     navText: 'Visitas',
-    user: ['admin', 'vendedor']
+    user: [USERS_TYPES.admin, USERS_TYPES.vendedor]
   },
   {
     image: presupuestos,
@@ -25,7 +34,7 @@ export const NAV_LINKS = [
     buttonActivity: 'Gestiona',
     link: '/gestion',
     navText: 'Gestionar Visitas',
-    user: ['admin', 'vendedor']
+    user: [USERS_TYPES.admin, USERS_TYPES.vendedor]
   },
   {
     image: estadisticas,
@@ -35,7 +44,7 @@ export const NAV_LINKS = [
     buttonActivity: 'Analizar',
     link: '/estadisticas',
     navText: 'Estadísticas',
-    user: ['admin', 'vendedor']
+    user: [USERS_TYPES.admin, USERS_TYPES.vendedor, USERS_TYPES.trabajador]
   },
   {
     image: trabajo,
@@ -44,7 +53,7 @@ export const NAV_LINKS = [
     buttonActivity: 'Fichar',
     link: '/fichar',
     navText: 'Fichar',
-    user: ['admin', 'vendedor']
+    user: [USERS_TYPES.admin, USERS_TYPES.vendedor, USERS_TYPES.trabajador]
   },
   {
     image: tiempos,
@@ -53,7 +62,7 @@ export const NAV_LINKS = [
     buttonActivity: 'Ver',
     link: '/trabajo-realizado',
     navText: 'Trabajo Realizado',
-    user: ['admin', 'vendedor']
+    user: [USERS_TYPES.admin, USERS_TYPES.vendedor, USERS_TYPES.trabajador]
   },
   {
     image: configuracion,
@@ -62,24 +71,44 @@ export const NAV_LINKS = [
     buttonActivity: 'Configuración',
     link: '/configuracion',
     navText: 'Configuración',
-    user: ['admin']
+    user: [USERS_TYPES.admin]
   },
   {
     image: vendedores,
-    titleActivity: 'Administrar Vendedores',
+    titleActivity: 'Administrar Empleados',
     descriptionActivity: 'Agrega, modficia o eliminia vendedores.',
     buttonActivity: 'Vendedores',
     link: '/vendedores',
-    navText: 'Vendedores',
-    user: ['admin']
+    navText: 'Empleados',
+    user: [USERS_TYPES.admin]
   },
   {
-    image: vendedores,
+    image: clientesImg,
     titleActivity: 'Clientes',
     descriptionActivity: 'Agregar, modifica y elimina clientes',
     buttonActivity: 'Gestionar',
     link: '/clientes',
     navText: 'Clientes',
-    user: ['admin']
+    user: [USERS_TYPES.admin]
+  },
+  {
+    image: analizarImg,
+    titleActivity: 'Analizar',
+    descriptionActivity: 'Saca estadísticas de lo que necesites',
+    buttonActivity: 'Analizar',
+    link: '/analizar',
+    navText: 'Analizar',
+    user: [USERS_TYPES.admin, USERS_TYPES.vendedor, USERS_TYPES.trabajador]
   }
 ];
+
+export const COLLECTIONS = {
+  visitas: 'visitas',
+  analizar: 'analizar',
+  usersData: 'usersData',
+  dynamicFields: 'dynamicFields',
+  dynamicFieldsAnalisis: 'dynamicFieldsAnalisis',
+  fichajeTypes: 'fichajeTypes'
+};
+
+export const CHARTS_COLORS = getColors();

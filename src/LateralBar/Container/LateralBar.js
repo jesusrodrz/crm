@@ -17,8 +17,8 @@ export function LateralBar() {
             Inicio
           </Link>
         </li>
-        {links.map(link => (
-          <li className="nav-item">
+        {links.map((link, i) => (
+          <li className="nav-item" key={`${i}-${link.link}`}>
             <Link to={link.link} className="btn btn-link">
               {link.navText}
             </Link>

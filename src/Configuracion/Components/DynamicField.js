@@ -32,10 +32,11 @@ const validate = ({ title, options }) => {
   }
   return { isValid: true };
 };
-export default function DynamicField({ field, closeModal, user }) {
+export default function DynamicField({ field, closeModal, user, type }) {
   const defaulField = field || {
     title: '',
     typeCampo: 'simple',
+    available: true,
     required: true,
     date: null,
     options: []
@@ -92,7 +93,7 @@ export default function DynamicField({ field, closeModal, user }) {
       const date = campo.date ? campo.date : moment().valueOf();
       const fieldSave = { ...campo, userId: user.uid, options, date };
       await db
-        .collection('dynamicFields')
+        .collection(type)
         .doc(docId)
         .set(fieldSave);
     } catch (error) {
@@ -104,7 +105,7 @@ export default function DynamicField({ field, closeModal, user }) {
     if (!hasError) {
       closeModal();
     }
-  }, [campo, user, field, closeModal]);
+  }, [campo, user, field, closeModal, type]);
   return (
     <div>
       <h2>{field ? 'Editar campo' : 'Agregar un campo nuevo'}</h2>

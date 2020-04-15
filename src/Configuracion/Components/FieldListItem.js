@@ -2,22 +2,26 @@ import React, { useCallback } from 'react';
 import swal from 'sweetalert';
 import { db } from '../../firebase/firebase';
 
-export default function FieldListItem({ data, i, edit }) {
-  const { id, title, options } = data;
+export default function FieldListItem({ data, i, edit, type }) {
+  const { id, title, options, available } = data;
   const handleEdit = useCallback(() => {
-    edit(id);
-  }, [id, edit]);
-  const handleDelete = useCallback(async () => {
-    try {
-      await db
-        .collection('dynamicFields')
-        .doc(id)
-        .delete();
-      swal('Campo eliminado');
-    } catch (error) {
-      swal('Error al eliminar campo', `Error: ${error}`, 'error');
-    }
-  }, [id]);
+    edit(id, type);
+  }, [id, edit, type]);
+  const handleAvailable = useCallback(
+    async value => {
+      try {
+        await db
+          .collection(type)
+          .doc(id)
+          .set({ available: value }, { merge: true });
+        // .delete();
+        swal(`Campo ${value ? 'Habilitado' : 'deshabilitado'}`);
+      } catch (error) {
+        swal('Error al eliminar campo', `Error: ${error}`, 'error');
+      }
+    },
+    [id, type]
+  );
   return (
     <tr>
       <td>{i}</td>
@@ -31,13 +35,23 @@ export default function FieldListItem({ data, i, edit }) {
         >
           <span>Editar</span>
         </button>
-        <button
-          type="button"
-          className="btn btn-sm btn-outline-danger"
-          onClick={handleDelete}
-        >
-          <span>×</span>
-        </button>
+        {available ? (
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-danger"
+            onClick={() => handleAvailable(false)}
+          >
+            Eliminar
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-info"
+            onClick={() => handleAvailable(true)}
+          >
+            Habilitar
+          </button>
+        )}
       </td>
     </tr>
   );

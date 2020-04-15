@@ -11,3 +11,7 @@
   justify-self: flex-start;
   align-items: center;
 }
+
+.table-ov {
+  overflow-x: auto;
+}

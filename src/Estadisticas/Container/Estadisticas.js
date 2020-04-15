@@ -1,20 +1,30 @@
 import React, { useState, useCallback } from 'react';
 import moment from 'moment';
 import { Analisis } from '../Components/Analisis';
-import { useCollection, useCollectionByRef } from '../../hooks';
+import { useCollection, useCollectionCallback } from '../../hooks';
 import { Spinner } from '../../Spinner/Container/Spinner';
 import { useAuthValue } from '../../context/context';
+import {
+  USERS_TYPES,
+  COLLECTIONS,
+  CHARTS_COLORS
+} from '../../Constants/Constants';
 
-const today = moment().valueOf();
+const today = moment(moment().add('days', 2)).valueOf();
+
 export function Estadisticas() {
   const { user } = useAuthValue();
   const userType = user?.data?.type;
   const { email: emailUser, uid } = user;
   const userAmindId = userType === 'admin' ? user.uid : user?.data?.userAdmin;
-  const [{ minDate, maxDate, userFilter }, setFilterState] = useState({
+  const [
+    { minDate, maxDate, userFilter, typeFilter },
+    setFilterState
+  ] = useState({
     minDate: '',
-    maxDate: today,
-    userFilter: false
+    maxDate: '',
+    userFilter: false,
+    typeFilter: COLLECTIONS.analizar
   });
   const [users] = useCollection('usersData', [
     'userAdmin',
@@ -32,36 +42,51 @@ export function Estadisticas() {
       type === 'date' ? Number(moment(value).format('x')) : value;
     setFilterState(state => ({ ...state, [name]: formatedValue }));
   }, []);
-  const visitasRef = [
-    'visitas',
-    {
-      where: [
-        ['userAdmin', '==', userAmindId],
-        ['diaVisita', '>=', minDate || 0],
-        ['diaVisita', '<=', maxDate],
-        userType === 'admin' && userFilter && userFilter !== 'false'
-          ? ['userId', '==', userFilter]
-          : undefined,
-        userType === 'vendedor' ? ['userId', '==', user.uid] : null
-      ]
-    }
-  ];
+  const queryVisitas = useCallback(
+    query => {
+      // console.log(minDate);
+      // console.log(minDate);
+      const newQuery = query
+        .where('userAdmin', '==', userAmindId)
+        .where('diaVisita', '>=', minDate || 0)
+        .where('diaVisita', '<=', maxDate || today);
+      if (userType !== USERS_TYPES.admin) {
+        return newQuery.where('userId', '==', user.uid);
+      }
+      if (
+        userType === USERS_TYPES.admin &&
+        userFilter &&
+        userFilter !== 'false'
+      ) {
+        return newQuery.where('userId', '==', userFilter);
+      }
+      return newQuery;
+    },
+    [userType, userFilter, minDate, userAmindId, user.uid]
+  );
+  const fieldsType =
+    typeFilter === COLLECTIONS.analizar
+      ? COLLECTIONS.dynamicFieldsAnalisis
+      : COLLECTIONS.dynamicFields;
 
-  const [campos, loadingC] = useCollection('dynamicFields', [
-    'userId',
-    '==',
-    userAmindId
-  ]);
-  const [visitas, loadingV] = useCollectionByRef(...visitasRef);
+  const queryCampos = useCallback(query => {
+    return query
+      .where('userId', '==', userAmindId)
+      .where('available', '==', true);
+  }, []);
+  const [campos, loadingC] = useCollectionCallback(fieldsType, queryCampos);
+
+  const [visitas, loadingV] = useCollectionCallback(typeFilter, queryVisitas);
   const datosVisitas = campos.map(item => {
     const { id } = item;
     const data = visitas.reduce((currentData, visita) => {
+      let newData = [...currentData];
       visita.fields.forEach(element => {
         if (id === element.id) {
-          currentData = currentData.concat(element.values);
+          newData = currentData.concat(element.values);
         }
       });
-      return currentData;
+      return newData;
     }, []);
     const newOption = item.options.map(opt => {
       let count = 0;
@@ -78,39 +103,25 @@ export function Estadisticas() {
   const loading = loadingC || loadingV;
   const formatedMinDate = moment(minDate).format('YYYY-MM-DD');
   const formatedMaxDate = moment(maxDate).format('YYYY-MM-DD');
+
   return (
     <>
       <div className="row">
         <div className="col-12">
           <div className="card precios">
             <div className="card-body">
-              <h2 className="card-title">Filtar Visitas</h2>
+              <h2 className="card-title">Estadisticas</h2>
               <div className="form-row">
                 <div className="col-md-6 mb-3">
-                  <div className="form-group row">
-                    <label className="col-2 col-form-label">Desde</label>
-                    <div className="col-10">
-                      <input
-                        name="minDate"
-                        className="form-control"
-                        type="date"
-                        value={formatedMinDate}
-                        onChange={handleFilterChange}
-                      />
-                    </div>
-                  </div>
-                  <div className="form-group row">
-                    <label className="col-2 col-form-label">Hasta</label>
-                    <div className="col-10">
-                      <input
-                        name="maxDate"
-                        className="form-control"
-                        type="date"
-                        value={formatedMaxDate}
-                        onChange={handleFilterChange}
-                      />
-                    </div>
-                  </div>
+                  <select
+                    className="custom-select"
+                    name="typeFilter"
+                    value={typeFilter}
+                    onChange={handleFilterChange}
+                  >
+                    <option value={COLLECTIONS.visitas}>Visitas</option>
+                    <option value={COLLECTIONS.analizar}>Analisis</option>
+                  </select>
                 </div>
                 {userType === 'admin' && (
                   <div className="col-md-6 mb-3">
@@ -135,65 +146,90 @@ export function Estadisticas() {
                   </div>
                 )}
               </div>
-              <div className="row">{loading && <Spinner />}</div>
+              <div className="form-row">
+                <div className="col-md-6 mb-3">
+                  <div className="form-group row">
+                    <label className="col-2 col-form-label">Desde</label>
+                    <div className="col-10">
+                      <input
+                        name="minDate"
+                        className="form-control"
+                        type="date"
+                        value={formatedMinDate}
+                        onChange={handleFilterChange}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="col-md-6 mb-3">
+                  <div className="form-group row">
+                    <label className="col-2 col-form-label">Hasta</label>
+                    <div className="col-10">
+                      <input
+                        name="maxDate"
+                        className="form-control"
+                        type="date"
+                        value={formatedMaxDate}
+                        onChange={handleFilterChange}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="row">
-        {datosVisitas.length > 0
-          ? datosVisitas.map(dato => {
-              const { id, title, options } = dato;
-              const labels = [];
-              const dataCount = [];
-              options.forEach(({ name, count }) => {
-                labels.push(name);
-                dataCount.push(count);
-              });
-              const count = options.reduce((current, item) => {
-                return current + item.count;
-              }, 0);
-              const chartData = {
-                labels,
-                datasets: [
-                  {
-                    data: dataCount,
-                    backgroundColor: [
-                      '#F0EDED',
-                      '#36A2EB',
-                      '#FFCE56',
-                      '#605C5A',
-                      '#EB0F13'
-                    ],
-                    hoverBackgroundColor: [
-                      '#DFC5C5',
-                      '#36A2EB',
-                      '#FFCE56',
-                      '#4B0607'
-                    ]
-                  }
-                ]
-              };
-              return (
-                <div className="col-12 col-md-6" key={id}>
-                  <Analisis
-                    tituloEstadistica={`Total de ${title}`}
-                    dataEstadisitacaVisitas={chartData}
-                    totales={`Total: ${count}`}
-                  />
-                </div>
-              );
-            })
-          : !loading && (
-              <div className="col-12">
-                <div className="card precios">
-                  <div className="card-body">
-                    <h5 className="card-title">No hay visitas que mostrar</h5>
+      {loading && (
+        <div className="row">
+          <Spinner />
+        </div>
+      )}
+      {!loading && (
+        <div className="row">
+          {datosVisitas.length > 0
+            ? datosVisitas.map(dato => {
+                const { id, title, options } = dato;
+                const labels = [];
+                const dataCount = [];
+                options.forEach(({ name, count }) => {
+                  labels.push(name);
+                  dataCount.push(count);
+                });
+                const count = options.reduce((current, item) => {
+                  return current + item.count;
+                }, 0);
+                const chartData = {
+                  labels,
+                  datasets: [
+                    {
+                      data: dataCount,
+                      backgroundColor: CHARTS_COLORS.backgroundColor,
+                      hoverBackgroundColor: CHARTS_COLORS.hoverBackgroundColor
+                    }
+                  ]
+                };
+                return (
+                  <div className="col-12 col-md-6" key={id}>
+                    <Analisis
+                      tituloEstadistica={`Total de ${title}`}
+                      dataEstadisitacaVisitas={chartData}
+                      totales={`Total: ${count}`}
+                    />
+                  </div>
+                );
+              })
+            : !loading && (
+                <div className="col-12">
+                  <div className="card precios">
+                    <div className="card-body">
+                      <h5 className="card-title">No hay visitas que mostrar</h5>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-      </div>
+              )}
+        </div>
+      )}
     </>
   );
 }

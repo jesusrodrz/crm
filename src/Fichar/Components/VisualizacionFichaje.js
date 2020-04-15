@@ -22,7 +22,11 @@ export function VisualizacionFichaje({ fichajesSinParar, handleClickParar }) {
                 <tr key={i}>
                   <th scope="row">{i + 1}</th>
                   <td>{fichaje.actividad}</td>
-                  <td>{fichaje.clienteNombre}</td>
+                  <td>
+                    {fichaje.project !== ''
+                      ? `${fichaje.clienteNombre} (${fichaje.project})`
+                      : fichaje.clienteNombre}
+                  </td>
                   <td>{fichaje.comienzoFormated}</td>
                   <td>{fichaje.duracionFormated}</td>
                   <td>{fichaje.estado}</td>

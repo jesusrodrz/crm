@@ -1,6 +1,37 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 
-export default function ClientForm({ handleChange, submitClient, form }) {
+export default function ClientForm({
+  handleChange,
+  submitClient,
+  form,
+  setForm
+}) {
+  const { projects, nombreNegocio, poblacion, codigoPostal } = form;
+  const [project, setProject] = useState('');
+  const handleProject = useCallback(({ target }) => {
+    const { value } = target;
+    setProject(value);
+  }, []);
+  const addProject = useCallback(() => {
+    setProject(value => {
+      setForm(state => {
+        const list = state.projects || [];
+        list.push(value);
+        return { ...state, projects: list };
+      });
+      return '';
+    });
+  }, [setForm]);
+  const deleteProject = useCallback(
+    index => {
+      setForm(state => {
+        const list = state.projects || [];
+        const filteredList = list.filter((item, i) => index !== i);
+        return { ...state, projects: filteredList };
+      });
+    },
+    [setForm]
+  );
   return (
     <form className="m-4">
       <div className="card precios">
@@ -13,14 +44,14 @@ export default function ClientForm({ handleChange, submitClient, form }) {
             className="form-control"
             id="nombreNegocio"
             placeholder="Escribe el nombre de la empresa"
-            value={form.nombreNegocio}
+            value={nombreNegocio}
             required
           />
           <label>Poblacion</label>
           <input
             onChange={handleChange}
             type="text"
-            value={form.poblacion}
+            value={poblacion}
             className="form-control"
             id="poblacion"
             placeholder="Poblacion"
@@ -32,13 +63,13 @@ export default function ClientForm({ handleChange, submitClient, form }) {
             className="form-control"
             id="codigoPostal"
             placeholder="46000"
-            value={form.codigoPostal}
+            value={codigoPostal}
           />
         </div>
       </div>
       <div className="card precios">
         <div className="card-body">
-          <h5 className="card-title">Datos del Posible Cliente</h5>
+          <h5 className="card-title">Datos Cliente</h5>
           <div className="form-group">
             <label>Nombre del Gerente</label>
             <input
@@ -76,7 +107,7 @@ export default function ClientForm({ handleChange, submitClient, form }) {
       </div>
       <div className="card precios">
         <div className="card-body">
-          <h5 className="card-title">Datos de Conatacto</h5>
+          <h5 className="card-title">Datos de Contacto</h5>
           <div className="form-group">
             <label>Nombre del Gerente</label>
             <input
@@ -110,6 +141,58 @@ export default function ClientForm({ handleChange, submitClient, form }) {
               value={form.emailContacto}
             />
           </div>
+        </div>
+      </div>
+      <div className="card precios">
+        <div className="card-body">
+          <h5 className="card-title">Proyectos</h5>
+          <ul>
+            {projects &&
+              projects.map((item, i) => {
+                return (
+                  <li>
+                    <div className="row">
+                      <div className="col-6">
+                        <div className="form-group">{item}</div>
+                      </div>
+                      <div className="col-6">
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger btn-sm ml-2"
+                          onClick={() => deleteProject(i)}
+                        >
+                          <span>×</span>
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            <li>
+              <div className="row">
+                <div className="col-6">
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      className="form-control form-control-sm"
+                      placeholder="Proyecto"
+                      onChange={handleProject}
+                      value={project}
+                    />
+                  </div>
+                </div>
+                <div className="col-6">
+                  <button
+                    type="button"
+                    className="btn btn-outline-info btn-sm ml-2"
+                    onClick={addProject}
+                  >
+                    <span>+</span>
+                  </button>
+                </div>
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
       <div className="card precios">

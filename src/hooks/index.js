@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { firebaseApp, db } from '../firebase/firebase';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -98,9 +98,11 @@ export const useCollection = (collection, query) => {
 };
 export const useCollectionByRef = (collection, query) => {
   const [data, setData] = useState([]);
+
   const [loading, setLoading] = useState(true);
+
   const queryString = JSON.stringify(query);
-  console.log('loading: ', loading);
+
   useEffect(() => {
     if (!queryString) {
       return () => {};
@@ -118,6 +120,7 @@ export const useCollectionByRef = (collection, query) => {
       return newQuery.where(...value);
     }, db.collection(collection));
     const snapshotData = dbQuery.onSnapshot(snapshot => {
+      console.log('querySnapshot: ', collection);
       const snapshotDocsData = snapshot.docs.map(doc => ({
         ...doc.data(),
         id: doc.id
@@ -137,8 +140,11 @@ export const useCollectionByRef = (collection, query) => {
   return [data, loading];
 };
 export const useCollectionCallback = (collection, callbackQuery) => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [{ data, loading }, setData] = useState({ data: [], loading: false });
+
+  const setDataArr = useCallback(newData => {
+    setData(state => ({ ...state, data: newData }));
+  }, []);
   useEffect(() => {
     if (!callbackQuery) {
       return () => {};
@@ -147,19 +153,43 @@ export const useCollectionCallback = (collection, callbackQuery) => {
     if (!query) {
       return () => {};
     }
+    setData(state => ({ ...state, loading: true }));
     const unsubcribe = query.onSnapshot(snapshot => {
-      const dataSanp = snapshot.docs.map(doc => ({
+      console.log('querySnap: ', collection);
+      const dataSnap = snapshot.docs.map(doc => ({
         ...doc.data(),
         id: doc.id
       }));
-      if (loading) {
-        setLoading(false);
-      }
-      setData(dataSanp);
+
+      setData({ data: dataSnap, loading: false });
     });
 
     return () => unsubcribe();
-  }, [callbackQuery]);
+  }, [callbackQuery, collection]);
 
-  return [data, loading];
+  return [data, loading, setDataArr];
 };
+
+export function usePrint() {
+  const [printing, setPrinting] = useState(false);
+  const print = useCallback(() => {
+    setPrinting(true);
+  }, []);
+  // const
+
+  useEffect(() => {
+    let timeout;
+    if (printing) {
+      timeout = setTimeout(() => {
+        window.print();
+        setPrinting(false);
+      }, 1000);
+    }
+
+    return () => {
+      console.log('cleaning timeout: ', timeout);
+      clearTimeout(timeout);
+    };
+  }, [printing]);
+  return [printing, print];
+}

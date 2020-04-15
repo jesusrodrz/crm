@@ -37,6 +37,7 @@ export default function Clientes() {
   const { user } = useAuthValue();
   const userId = user?.data.type === 'admin' ? user.uid : user?.data.userAdmin;
   const [modalOpen, setModalOpen] = useState(false);
+  const [filter, setFiler] = useState('');
   const [form, setForm] = useState({});
   const handleChange = useCallback(({ target }) => {
     const { value, id } = target;
@@ -57,29 +58,40 @@ export default function Clientes() {
     [userId]
   );
   const [clientes] = useCollectionCallback('clientes', queryValue);
-  const updateClient = useCallback(formValue => {
-    const { id, ...updateForm } = formValue;
-    db.collection('clientes')
-      .doc(id)
-      .set(updateForm, { merge: true })
-      .then(() => {
-        swal('Se ha guardado correctamente');
-        close();
-      })
-      .catch(e => {
-        swal('Error', `Error: ${JSON.stringify(e)}`, 'error');
-        close();
-      }, []);
-  });
-  const saveClient = useCallback((formValue, userId) => {
-    db.collection('clientes')
-      .add({ ...formValue, userAdmin: userId })
-      .then(() => {
-        swal('Se ha guardado correctamente');
-      })
-      .catch(e => {
-        swal('Error', `Error: ${JSON.stringify(e)}`, 'error');
-      });
+  const updateClient = useCallback(
+    formValue => {
+      const { id, ...updateForm } = formValue;
+      db.collection('clientes')
+        .doc(id)
+        .set(updateForm, { merge: true })
+        .then(() => {
+          swal('Se ha guardado correctamente');
+        })
+        .catch(e => {
+          swal('Error', `Error: ${JSON.stringify(e)}`, 'error');
+          close();
+        }, []);
+      close();
+    },
+    [close]
+  );
+  const saveClient = useCallback(
+    (formValue, id) => {
+      db.collection('clientes')
+        .add({ ...formValue, userAdmin: id })
+        .then(() => {
+          swal('Se ha guardado correctamente');
+        })
+        .catch(e => {
+          swal('Error', `Error: ${JSON.stringify(e)}`, 'error');
+        });
+      close();
+    },
+    [close]
+  );
+  const handleFilter = useCallback(({ target }) => {
+    const { value } = target;
+    setFiler(value);
   }, []);
   const submitClient = useCallback(() => {
     const isValid = validate(form);
@@ -91,7 +103,7 @@ export default function Clientes() {
     } else {
       saveClient(form, userId);
     }
-  }, [form]);
+  }, [form, saveClient, updateClient, userId]);
   const editClient = useCallback(
     i => {
       setModalOpen(true);
@@ -99,7 +111,15 @@ export default function Clientes() {
     },
     [clientes]
   );
-  // console.log(userId, userId);
+  const filteredClientes = clientes.filter(item => {
+    if (
+      filter === '' ||
+      item.nombreNegocio.toLowerCase().includes(filter.toLowerCase())
+    ) {
+      return true;
+    }
+    return false;
+  });
   return (
     <>
       <div className="row">
@@ -107,13 +127,29 @@ export default function Clientes() {
           <div className="card precios">
             <div className="card-body">
               <h5 className="card-title">Clientes</h5>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={() => setModalOpen(true)}
-              >
-                Agregar clientes
-              </button>
+              <div className="row justify-content-md-start">
+                <div className="col-md-auto">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setModalOpen(true)}
+                  >
+                    Agregar clientes
+                  </button>
+                </div>
+                <div className="col-md-auto">
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Buscar cliente"
+                      value={filter}
+                      onChange={handleFilter}
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="mt-3">
                 <table className="table">
                   <thead className="thead-dark">
@@ -126,7 +162,7 @@ export default function Clientes() {
                   </thead>
                   <tbody>
                     <ClientsList
-                      data={clientes}
+                      data={filteredClientes}
                       edit={editClient}
                       delete={deleteCliente}
                     />
@@ -144,6 +180,7 @@ export default function Clientes() {
           submitClient={submitClient}
           form={form}
           handleChange={handleChange}
+          setForm={setForm}
         />
       </Modal>
     </>
